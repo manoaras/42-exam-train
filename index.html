@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Exam Medium Python 42 — Trainer</title>
+<title>Exams · 42 — Trainer</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -77,6 +77,26 @@
   .sub b{color:var(--ok);font-weight:500}
 
 
+
+  .sub-tabs{display:flex;gap:8px;flex-wrap:wrap;width:100%;margin-top:10px}
+  .sub-tabs button{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;
+    color:var(--muted);font-family:"JetBrains Mono",monospace;font-size:.7rem;padding:6px 12px;cursor:pointer;transition:all .15s}
+  .sub-tabs button:hover{color:var(--ink);border-color:var(--indigo)}
+  .sub-tabs button.active{background:var(--indigo);border-color:var(--indigo);color:var(--bg);font-weight:700}
+  .q-editor-label{display:block;font-family:"JetBrains Mono",monospace;font-size:.72rem;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px}
+  .q-editor{width:100%;min-height:220px;resize:vertical;background:var(--code-bg);
+    border:1px solid var(--line);border-radius:10px;color:#dcd8f2;
+    font-family:"JetBrains Mono",monospace;font-size:.86rem;line-height:1.6;padding:14px 16px;
+    outline:none;tab-size:4}
+  .q-editor:focus{border-color:var(--indigo)}
+  .q-feedback{margin-top:14px;border-radius:10px;padding:13px 16px;font-size:.92rem;
+    background:var(--panel-2);border:1px solid var(--line);color:var(--muted)}
+  .q-feedback.okmsg{border-color:rgba(102,214,154,.5);color:var(--ok)}
+  .q-feedback.ko{border-color:rgba(255,90,60,.45);color:var(--ink)}
+  .q-fail{margin-top:9px;font-size:.84rem;color:var(--muted);border-left:2px solid var(--line);padding-left:10px}
+  .q-fail code{font-family:"JetBrains Mono",monospace;background:rgba(138,130,255,.14);color:#cdc8ff;padding:1px 5px;border-radius:5px}
+  .q-attempts{font-family:"JetBrains Mono",monospace;font-size:.74rem;color:var(--muted)}
   .rank-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 0}
   .rank-tabs button{background:var(--panel);border:1px solid var(--line);border-radius:99px;
     color:var(--muted);font-family:"JetBrains Mono",monospace;font-size:.72rem;padding:7px 14px;
@@ -84,7 +104,9 @@
   .rank-tabs button:hover:not(:disabled){color:var(--ink);border-color:var(--indigo)}
   .rank-tabs button.active{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:700}
   .rank-tabs button:disabled{opacity:.38;cursor:not-allowed}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(560px,1fr));gap:20px;align-items:start;margin-top:14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,540px),1fr));gap:20px;align-items:stretch;margin-top:14px}
+  .grid .card{height:100%;display:flex;flex-direction:column}
+  .grid .card .hint-open{margin-top:auto;padding-top:14px}
   .grid .section-title{grid-column:1 / -1;font-family:"JetBrains Mono",monospace;font-size:.85rem;
     letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:32px 0 2px;padding-bottom:10px;
     border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
@@ -211,7 +233,7 @@
   .quiz-results .q-actions{justify-content:center}
 
   
-  @media (max-width:640px){.grid{grid-template-columns:1fr}}
+  @media (max-width:640px){.grid{grid-template-columns:1fr}pre{font-size:.7rem;padding:12px 12px}}
   .card{cursor:pointer}
   .card .hint-open{font-family:"JetBrains Mono",monospace;font-size:.72rem;color:var(--ok);margin-top:14px}
   .overlay{position:fixed;inset:0;z-index:100;background:rgba(10,8,22,.72);
@@ -238,7 +260,7 @@
 
 <div class="toolbar">
   <div class="toolbar-inner">
-    <div class="brand"><span class="glyph">◆</span><span class="long">Exam Python · 42</span></div>
+    <div class="brand"><span class="glyph">◆</span><span class="long">Exams · 42</span></div>
     <div class="seg" role="tablist" aria-label="Choix de la vue">
       <button type="button" data-view="official" class="active" role="tab">Officiels</button>
       <button type="button" data-view="training" role="tab">Entraînement</button>
@@ -288,11 +310,7 @@
    EXERCISES — la grille, les sections, le filtre et le quiz s'adaptent seuls.
    ========================================================================= */
 const HERO = {
-    official: {
-        kicker: "Sujets officiels · Exam Medium Python",
-        h1: "Exercices officiels",
-        sub: `Les sujets <b>réellement tombés</b> à ton exam medium (rank 04). Tente-les en conditions, puis révèle la <b>solution la plus courte</b>.`,
-    },
+    official: { kicker: "", h1: "", sub: "" }, // rempli dynamiquement selon la tab
     training: {
         kicker: "Entraînement · Exam Medium Python",
         h1: "Exercices d'entraînement",
@@ -303,7 +321,7 @@ const HERO = {
 const EXERCISES = [
     /* ============ OFFICIELS ============ */
     {
-        view: "official", section: "Sujets tombés à l'exam", num: "01",
+        view: "official", tab: 2, section: "Sujets tombés à l'exam", num: "01",
         heading: `<span class="file">is_rotation.py</span>`,
         tag: "doubled list trick",
         analogy: `🎡 Une roue qui tourne : colle-la deux fois bout à bout, et toute rotation devient une simple tranche continue dans cette roue doublée.`,
@@ -330,7 +348,7 @@ print(is_rotation([1, 2, 3, 4, 5], [1, 2, 3, 4]))     # False`,
         search: "is_rotation rotation liste doubled list trick",
     },
     {
-        view: "official", section: "Sujets tombés à l'exam", num: "02",
+        view: "official", tab: 2, section: "Sujets tombés à l'exam", num: "02",
         heading: `<span class="file">constellation_mapper.py</span>`,
         tag: "grid + tuple unpack",
         analogy: `🌌 Une carte du ciel : tu poses une grille vide de points, puis tu allumes une étoile à chaque coordonnée — en ignorant celles hors du cadre.`,
@@ -365,7 +383,7 @@ print(constellation_mapper([(0, 0), (1, 2), (3, 4)], 5))
         search: "constellation_mapper grille grid tuple etoiles stars",
     },
     {
-        view: "official", section: "Sujets tombés à l'exam", num: "03",
+        view: "official", tab: 2, section: "Sujets tombés à l'exam", num: "03",
         heading: `<span class="file">list_intersection_finder.py</span>`,
         badge: "Attempt 1", tag: "set + intersection",
         analogy: `🎯 Plusieurs groupes d'amis : l'intersection, c'est <b>qui est présent dans TOUS les groupes</b>. Les doublons dans un même groupe ne comptent pas.`,
@@ -388,7 +406,7 @@ print(list_intersection_finder([[1, 2, 2, 3], [2, 3, 4], [0, 2, 3, 3]]))
         search: "list_intersection_finder intersection set ensembles attempt 1",
     },
     {
-        view: "official", section: "Sujets tombés à l'exam", num: "04",
+        view: "official", tab: 2, section: "Sujets tombés à l'exam", num: "04",
         heading: `<span class="file">merge_sorted_list.py</span>`,
         tag: "flatten + sorted",
         analogy: `🗂️ Plusieurs piles de cartes déjà triées : le plus simple est de tout reposer sur la table en un seul tas, puis de re-trier une bonne fois pour toutes.`,
@@ -417,7 +435,7 @@ print(merge_sorted_lists([[1, 4, 5], [1, 3, 4], [2, 6]]))
         search: "merge_sorted_list fusion flatten sorted",
     },
     {
-        view: "official", section: "Sujets tombés à l'exam", num: "05",
+        view: "official", tab: 2, section: "Sujets tombés à l'exam", num: "05",
         heading: `<span class="file">palindrome_partitioner.py</span>`,
         tag: "DP palindrome",
         analogy: `✂️ Découper un mot en morceaux tous lisibles à l'endroit comme à l'envers — en cherchant le minimum de coups de ciseaux.`,
@@ -449,7 +467,7 @@ print(palindrome_partitioner("aaabc"))  # output: 1`,
         search: "palindrome_partitioner palindrome coupes dp programmation dynamique",
     },
     {
-        view: "official", section: "Sujets tombés à l'exam", num: "06",
+        view: "official", tab: 2, section: "Sujets tombés à l'exam", num: "06",
         heading: `<span class="file">sliding_window_maximum.py</span>`,
         badge: "Attempt 2", tag: "list comprehension",
         analogy: `🚂 La fenêtre d'un train le long d'un quai : tu vois <code>k</code> personnes, tu notes la plus grande, puis le train avance d'un cran.`,
@@ -476,6 +494,161 @@ print(sliding_window_maximum([1, 3, -1, -3, 5, 3, 6, 7], 3))
 # output: [3, 3, 5, 5, 6, 7]`,
         note: `<b>Le compteur clé :</b> <code>len(nums) - k + 1</code> = le nombre de fenêtres. Avec 8 cases et <code>k=3</code>, la fenêtre démarre en 0…5 → <code>8-3+1=6</code>. <b>La compréhension</b> remplace la boucle <code>for</code> + <code>append</code> en une ligne.`,
         search: "sliding_window_maximum window fenetre max comprehension attempt 2",
+    },
+    /* ============ BASIC (tab 1) ============ */
+    {
+        view: "official", tab: 1, level: 1, section: "Niveau 1", num: "01",
+        heading: `<span class="file">bracket_validator.py</span>`,
+        tag: "stack (pile)",
+        analogy: "🧱 Des poupées russes de parenthèses : chaque ouvrante doit retrouver SA fermante, dans le bon ordre.",
+        brief: ["Vérifie que <code>()</code>, <code>[]</code>, <code>{}</code> sont bien appariés et imbriqués.", "Les autres caractères sont ignorés ; chaîne vide → <code>True</code>.", "Exemple : <code>bracket_validator(\"([]{})\")</code> → <code>True</code>", "Exemple : <code>bracket_validator(\"([)]\")</code> → <code>False</code>"],
+        signature: "def bracket_validator(s: str) -> bool:",
+        solution: "def bracket_validator(s: str) -> bool:\n    stack = []\n    bracket_map = {')': '(', ']': '[', '}': '{'}\n\n    for char in s:\n        if char in bracket_map.values():\n            stack.append(char)\n        elif char in bracket_map.keys():\n            if not stack or stack[-1] != bracket_map[char]:\n                return False\n            stack.pop()\n\n    return not stack",
+        note: "<b>Le réflexe pile :</b> on empile chaque ouvrante ; à chaque fermante, le sommet doit être l'ouvrante correspondante (via un <code>dict</code> de correspondance). Valide si la pile finit vide.",
+        search: "bracket_validator niveau 1 basic stack (pile)",
+    },
+    {
+        view: "official", tab: 1, level: 1, section: "Niveau 1", num: "02",
+        heading: `<span class="file">cryptic_sorter.py</span>`,
+        tag: "sorted + clé multiple",
+        analogy: "🏅 Un podium à 3 critères : d'abord la taille, puis l'alphabet, puis les voyelles départagent.",
+        brief: ["Trie les chaînes par <b>longueur</b>, puis <b>ordre alphabétique</b> (insensible à la casse), puis <b>nombre de voyelles</b>.", "Exemple : <code>cryptic_sorter([\"banana\", \"kiwi\", \"apple\", \"fig\"])</code> → <code>['fig', 'kiwi', 'apple', 'banana']</code>", "Exemple : <code>cryptic_sorter([\"bb\", \"aa\", \"a\"])</code> → <code>['a', 'aa', 'bb']</code>"],
+        signature: "def cryptic_sorter(strings: list[str]) -> list[str]:",
+        solution: "def cryptic_sorter(strings: list[str]) -> list[str]:\n    def count_vowels(s: str) -> int:\n        return sum(1 for char in s.lower() if char in 'aeiou')\n\n    return sorted(\n        strings,\n        key=lambda s: (len(s), s.lower(), count_vowels(s))\n    )",
+        note: "<b>Clé en tuple :</b> <code>key=lambda s: (len(s), s.lower(), count_vowels(s))</code> — Python compare critère par critère, exactement comme un classement à égalités.",
+        search: "cryptic_sorter niveau 1 basic sorted + clé multiple",
+    },
+    {
+        view: "official", tab: 1, level: 2, section: "Niveau 2", num: "03",
+        heading: `<span class="file">echo_validator.py</span>`,
+        tag: "palindrome + nettoyage",
+        analogy: "🪞 Une phrase-miroir : on enlève le bruit (ponctuation, casse) et on vérifie qu'elle se lit pareil dans les deux sens.",
+        brief: ["<code>True</code> si le texte est un palindrome en ignorant casse et caractères non alphabétiques.", "Exemple : <code>echo_validator(\"A man, a plan, a canal: Panama\")</code> → <code>True</code>", "Exemple : <code>echo_validator(\"Hello\")</code> → <code>False</code>"],
+        signature: "def echo_validator(text: str) -> bool:",
+        solution: "def echo_validator(text: str) -> bool:\n    cleaned_text = ''.join(c for c in text.lower() if c.isalpha())\n    return cleaned_text == cleaned_text[::-1]",
+        note: "<b>2 étapes :</b> nettoyer (<code>c.isalpha()</code> + <code>lower()</code>) puis comparer au retourné <code>[::-1]</code>.",
+        search: "echo_validator niveau 2 basic palindrome + nettoyage",
+    },
+    {
+        view: "official", tab: 1, level: 2, section: "Niveau 2", num: "04",
+        heading: `<span class="file">mirror_matrix.py</span>`,
+        tag: "slicing [::-1]",
+        analogy: "🪞 Chaque ligne passe devant le miroir : la première colonne devient la dernière.",
+        brief: ["Retourne la matrice avec chaque <b>ligne inversée</b> (miroir horizontal).", "Exemple : <code>mirror_matrix([[1, 2, 3], [4, 5, 6]])</code> → <code>[[3, 2, 1], [6, 5, 4]]</code>", "Exemple : <code>mirror_matrix([])</code> → <code>[]</code>"],
+        signature: "def mirror_matrix(matrix: list[list[int]]) -> list[list[int]]:",
+        solution: "def mirror_matrix(matrix: list[list[int]]) -> list[list[int]]:\n    return [row[::-1] for row in matrix]",
+        note: "<b>Une ligne suffit :</b> <code>[row[::-1] for row in matrix]</code> — le slicing inversé appliqué à chaque ligne.",
+        search: "mirror_matrix niveau 2 basic slicing [::-1]",
+    },
+    {
+        view: "official", tab: 1, level: 3, section: "Niveau 3", num: "05",
+        heading: `<span class="file">hidenp.py</span>`,
+        tag: "sous-séquence (2 curseurs)",
+        analogy: "🕵️ Chercher un mot caché : les lettres de <code>s1</code> doivent apparaître dans <code>s2</code>, dans l'ordre, mais pas forcément collées.",
+        brief: ["<code>True</code> si <code>s1</code> est une <b>sous-séquence</b> de <code>s2</code> (lettres dans l'ordre, pas nécessairement contiguës).", "Chaîne vide → <code>True</code> (toujours cachée).", "Exemple : <code>hidenp(\"fgex.;\", \"tyf34gdgf;'ektufjhgdgex.;.;rtjynur6\")</code> → <code>True</code>", "Exemple : <code>hidenp(\"abc\", \"acb\")</code> → <code>False</code>"],
+        signature: "def hidenp(s1: str, s2: str) -> bool:",
+        solution: "def hidenp(s1: str, s2: str) -> bool:\n    i = 0\n\n    for char in s2:\n        if i < len(s1) and char == s1[i]:\n            i += 1\n\n    return i == len(s1)\n\n\n# Version plus concise avec iter et all\ndef hidenp_iter(s1: str, s2: str) -> bool:\n    it = iter(s2)\n    return all(char in it for char in s1)",
+        note: "<b>Un curseur sur <code>s1</code> :</b> on parcourt <code>s2</code> et on avance le curseur à chaque lettre retrouvée ; gagné si le curseur atteint la fin. La variante <code>iter</code> + <code>all</code> fait pareil en 2 lignes.",
+        search: "hidenp niveau 3 basic sous-séquence (2 curseurs)",
+    },
+    {
+        view: "official", tab: 1, level: 3, section: "Niveau 3", num: "06",
+        heading: `<span class="file">inter.py</span>`,
+        tag: "dedup ordonné",
+        analogy: "🤝 Les caractères que deux chaînes ont en commun — chacun une seule fois, dans l'ordre de la première.",
+        brief: ["Retourne les caractères présents dans <b>les deux</b> chaînes, <b>sans doublons</b>, dans l'ordre d'apparition de <code>s1</code>.", "Exemple : <code>inter(\"padinton\", \"paqefwtdjetyiytjneytjoeyjnejeyj\")</code> → <code>'padinto'</code>", "Exemple : <code>inter(\"ddf6vewg64f\", \"gtwthgsertyhrdthrtr\")</code> → <code>'dewg'</code>"],
+        signature: "def inter(s1: str, s2: str) -> str:",
+        solution: "def inter(s1: str, s2: str) -> str:\n    result: list[str] = []\n\n    for char in s1:\n        if char in s2 and char not in result:\n            result.append(char)\n\n    return ''.join(result)\n\n\n# Version plus concise avec dict.fromkeys\ndef inter_dict(s1: str, s2: str) -> str:\n    return ''.join(dict.fromkeys(c for c in s1 if c in s2))",
+        note: "<b>2 versions :</b> la boucle lisible (test <code>in</code> + anti-doublon), ou la version <code>dict.fromkeys</code> qui dédoublonne en gardant l'ordre — un classique à connaître.",
+        search: "inter niveau 3 basic dedup ordonné",
+    },
+    {
+        view: "official", tab: 1, level: 3, section: "Niveau 3", num: "07",
+        heading: `<span class="file">number_base_converter.py</span>`,
+        tag: "int(x, base) + divisions",
+        analogy: "🔢 Traducteur de bases : on repasse par la base 10 (langue pivot), puis on reconstruit chiffre par chiffre.",
+        brief: ["Convertit <code>number</code> de <code>from_base</code> vers <code>to_base</code> (bases 2 à 36, chiffres <code>0-9A-Z</code>).", "Base ou nombre invalide → <code>\"ERROR\"</code> ; gère le signe négatif et le zéro.", "Exemple : <code>number_base_converter(\"FF\", 16, 2)</code> → <code>'11111111'</code>", "Exemple : <code>number_base_converter(\"1010\", 2, 10)</code> → <code>'10'</code>"],
+        signature: "def number_base_converter(number: str, from_base: int, to_base: int) -> str:",
+        solution: "def number_base_converter(number: str, from_base: int, to_base: int) -> str:\n    DIGITS = \"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ\"\n\n    if not (2 <= from_base <= 36) or not (2 <= to_base <= 36):\n        return \"ERROR\"\n\n    try:\n        value = int(number, from_base)\n    except ValueError:\n        return \"ERROR\"\n\n    if value == 0:\n        return \"0\"\n\n    sign = \"-\" if value < 0 else \"\"\n    value = abs(value)\n\n    result = \"\"\n    while value > 0:\n        result = DIGITS[value % to_base] + result\n        value //= to_base\n\n    return sign + result",
+        note: "<b>Le pivot base 10 :</b> <code>int(number, from_base)</code> lit tout seul (et lève <code>ValueError</code> si invalide → <code>try/except</code>), puis on divise par <code>to_base</code> en empilant les restes.",
+        search: "number_base_converter niveau 3 basic int(x, base) + divisions",
+    },
+    {
+        view: "official", tab: 1, level: 3, section: "Niveau 3", num: "08",
+        heading: `<span class="file">pattern_tracker.py</span>`,
+        tag: "zip(text, text[1:])",
+        analogy: "🔍 Repérer les marches d'escalier : deux chiffres côte à côte où le second = le premier + 1.",
+        brief: ["Compte les paires de chiffres <b>consécutifs croissants</b> (<code>d</code> suivi de <code>d+1</code>).", "<code>'9'</code> suivi de <code>'0'</code> ne compte pas.", "Exemple : <code>pattern_tracker(\"a12b34c90\")</code> → <code>2</code>", "Exemple : <code>pattern_tracker(\"123\")</code> → <code>2</code>"],
+        signature: "def pattern_tracker(text: str) -> int:",
+        solution: "def pattern_tracker(text: str) -> int:\n    count = 0\n    for i in range(len(text) - 1):\n        current_char = text[i]\n        next_char = text[i + 1]\n\n        if current_char.isdigit() and next_char.isdigit():\n            if (current_char == '9' and next_char == '0'):\n                continue\n            elif int(next_char) == int(current_char) + 1:\n                count += 1\n\n    return count\n\n\n# Version plus concise avec zip[tuple[str, str]]\ndef pattern_tracker_zip(text: str) -> int:\n    return sum(\n        1 for a, b in zip(text, text[1:])\n        if a.isdigit() and b.isdigit() and int(b) == int(a) + 1\n    )",
+        note: "<b>Fenêtre de 2 :</b> <code>zip(text, text[1:])</code> donne toutes les paires voisines — la version concise tient en un <code>sum(...)</code>.",
+        search: "pattern_tracker niveau 3 basic zip(text, text[1:])",
+    },
+    {
+        view: "official", tab: 1, level: 4, section: "Niveau 4", num: "09",
+        heading: `<span class="file">anagram.py</span>`,
+        tag: "sorted + nettoyage",
+        analogy: "🔀 Deux mots faits des mêmes lettres mélangées, espaces et casse mis de côté.",
+        brief: ["<code>True</code> si <code>s1</code> et <code>s2</code> sont des anagrammes en ignorant <b>espaces</b> et <b>casse</b>.", "Exemple : <code>anagram(\"Listen\", \"Silent\")</code> → <code>True</code>", "Exemple : <code>anagram(\"dormitory\", \"dirty room\")</code> → <code>True</code>"],
+        signature: "def anagram(s1: str, s2: str) -> bool:",
+        solution: "def anagram(s1: str, s2: str) -> bool:\n    cleaned1 = sorted(s1.replace(\" \", \"\").lower())\n    cleaned2 = sorted(s2.replace(\" \", \"\").lower())\n    return cleaned1 == cleaned2",
+        note: "<b>Normaliser puis trier :</b> <code>sorted(s.replace(\" \", \"\").lower())</code> pour chacune — mêmes lettres triées = anagrammes.",
+        search: "anagram niveau 4 basic sorted + nettoyage",
+    },
+    {
+        view: "official", tab: 1, level: 4, section: "Niveau 4", num: "10",
+        heading: `<span class="file">shadow_merge.py</span>`,
+        tag: "deux pointeurs",
+        analogy: "🤐 Deux files déjà triées : à chaque tour, on laisse passer le plus petit des deux premiers.",
+        brief: ["Fusionne deux listes <b>déjà triées</b> en une seule triée, <b>sans</b> <code>sorted()</code>.", "Garde les doublons ; vide le reste de la liste non épuisée.", "Exemple : <code>shadow_merge([1, 3, 5], [2, 4, 6])</code> → <code>[1, 2, 3, 4, 5, 6]</code>", "Exemple : <code>shadow_merge([1, 1], [1])</code> → <code>[1, 1, 1]</code>"],
+        signature: "def shadow_merge(list1: list[int], list2: list[int]) -> list[int]:",
+        solution: "def shadow_merge(list1: list[int], list2: list[int]) -> list[int]:\n    merged_list = []\n    i, j = 0, 0\n\n    while i < len(list1) and j < len(list2):\n        if list1[i] < list2[j]:\n            merged_list.append(list1[i])\n            i += 1\n        else:\n            merged_list.append(list2[j])\n            j += 1\n\n    merged_list.extend(list1[i:])\n    merged_list.extend(list2[j:])\n\n    return merged_list",
+        note: "<b>Le pattern deux pointeurs :</b> <code>i</code> et <code>j</code> avancent chacun dans leur liste ; on prend toujours le plus petit, puis <code>extend</code> pour la fin de course. Fusion en O(n+m).",
+        search: "shadow_merge niveau 4 basic deux pointeurs",
+    },
+    {
+        view: "official", tab: 1, level: 4, section: "Niveau 4", num: "11",
+        heading: `<span class="file">string_permutation_checker.py</span>`,
+        tag: "sorted",
+        analogy: "🎲 Les mêmes lettres, juste battues comme un jeu de cartes — casse et espaces comptent ici.",
+        brief: ["<code>True</code> si <code>s2</code> est une permutation <b>exacte</b> de <code>s1</code> (casse et espaces comptent).", "Exemple : <code>string_permutation_checker(\"abc\", \"cab\")</code> → <code>True</code>", "Exemple : <code>string_permutation_checker(\"abc\", \"abz\")</code> → <code>False</code>"],
+        signature: "def string_permutation_checker(s1: str, s2: str) -> bool:",
+        solution: "def string_permutation_checker(s1: str, s2: str) -> bool:\n    return sorted(s1) == sorted(s2)",
+        note: "<b>Une ligne :</b> <code>sorted(s1) == sorted(s2)</code> — deux permutations triées deviennent identiques.",
+        search: "string_permutation_checker niveau 4 basic sorted",
+    },
+    {
+        view: "official", tab: 1, level: 5, section: "Niveau 5", num: "12",
+        heading: `<span class="file">string_sculptor.py</span>`,
+        tag: "booléen bascule",
+        analogy: "🎭 Une casse en zigzag : min, MAJ, min… seules les lettres alternent, le reste passe sans compter.",
+        brief: ["Alterne la casse des <b>lettres</b> en commençant par une <b>minuscule</b>.", "Les non-lettres sont recopiés tels quels et ne cassent pas l'alternance.", "Exemple : <code>string_sculptor(\"hello world\")</code> → <code>'hElLo WoRlD'</code>", "Exemple : <code>string_sculptor(\"a1b2c3\")</code> → <code>'a1B2c3'</code>"],
+        signature: "def string_sculptor(text: str) -> str:",
+        solution: "def string_sculptor(text: str) -> str:\n    result = []\n    upper = False\n\n    for char in text:\n        if char.isalpha():\n            result.append(char.upper() if upper else char.lower())\n            upper = not upper\n        else:\n            result.append(char)\n\n    return ''.join(result)",
+        note: "<b>Un booléen bascule :</b> <code>upper = not upper</code> à chaque lettre seulement — c'est lui qui porte l'alternance, pas l'index.",
+        search: "string_sculptor niveau 5 basic booléen bascule",
+    },
+    {
+        view: "official", tab: 1, level: 5, section: "Niveau 5", num: "13",
+        heading: `<span class="file">twist_sequence.py</span>`,
+        tag: "slicing + modulo",
+        analogy: "🎡 La rotation-manège : ce qui sort à droite revient à gauche, <code>%</code> gère les tours complets.",
+        brief: ["Rotation de <code>k</code> positions vers la <b>droite</b> ; <code>k</code> peut dépasser la taille (<code>%</code>).", "Liste vide → <code>[]</code>.", "Exemple : <code>twist_sequence([1, 2, 3, 4, 5], 2)</code> → <code>[4, 5, 1, 2, 3]</code>", "Exemple : <code>twist_sequence([1, 2, 3], 5)</code> → <code>[2, 3, 1]</code>"],
+        signature: "def twist_sequence(arr: list[int], k: int) -> list[int]:",
+        solution: "def twist_sequence(arr: list[int], k: int) -> list[int]:\n    if not arr:\n        return []\n    k = k % len(arr)\n    return arr[-k:] + arr[:-k]",
+        note: "<b>Même trick que <code>rotate_list</code> :</b> <code>arr[-k:] + arr[:-k]</code> après <code>k %= len(arr)</code>.",
+        search: "twist_sequence niveau 5 basic slicing + modulo",
+    },
+    {
+        view: "official", tab: 1, level: 6, section: "Niveau 6", num: "14",
+        heading: `<span class="file">whisper_cipher.py</span>`,
+        tag: "César ord/chr",
+        analogy: "🔐 Le chiffre de César : chaque lettre glisse de <code>shift</code> crans sur la roue, <code>z</code> reboucle sur <code>a</code>.",
+        brief: ["Décale chaque lettre de <code>shift</code> (bouclage après <code>z</code>/<code>Z</code>) ; non-lettres inchangés.", "Exemple : <code>whisper_cipher(\"abc\", 1)</code> → <code>'bcd'</code>", "Exemple : <code>whisper_cipher(\"XYZ\", 3)</code> → <code>'ABC'</code>"],
+        signature: "def whisper_cipher(text: str, shift: int) -> str:",
+        solution: "def whisper_cipher(text: str, shift: int) -> str:\n    result = []\n    for char in text:\n        if char.isalpha():\n            base = ord('A') if char.isupper() else ord('a')\n            char = chr((ord(char) - base + shift) % 26 + base)\n        result.append(char)\n    return ''.join(result)",
+        note: "<b>Le trio :</b> <code>ord</code> → ramener en 0-25 (<code>- base</code>) → <code>% 26</code> → <code>chr</code>. Identique au <code>caesar_cipher</code> d'entraînement : deux noms, un même classique.",
+        search: "whisper_cipher niveau 6 basic césar ord/chr",
     },
     /* ============ ENTRAÎNEMENT ============ */
     {
@@ -617,7 +790,35 @@ def char_frequency_sorter(text):
         search: "grades bulletin notes average moyenne highest max sum classe",
     },
 ];
-const exId = (ex) => `${ex.view}-${ex.num}`;
+const GRADEME = {
+    "official-2-01": { fn: "is_rotation", tests: [{ e: "__fn([1, 2, 3, 4, 5], [4, 5, 1, 2, 3])", d: "is_rotation([1, 2, 3, 4, 5], [4, 5, 1, 2, 3])", x: "True" }, { e: "__fn([1, 2, 3, 4, 5], [3, 4, 5, 1, 2])", d: "is_rotation([1, 2, 3, 4, 5], [3, 4, 5, 1, 2])", x: "True" }, { e: "__fn([1, 2, 3, 4, 5], [2, 3, 4, 5, 6])", d: "is_rotation([1, 2, 3, 4, 5], [2, 3, 4, 5, 6])", x: "False" }, { e: "__fn([1, 2, 3], [1, 2])", d: "is_rotation([1, 2, 3], [1, 2])", x: "False" }] },
+    "official-2-02": { fn: "constellation_mapper", tests: [{ e: "__fn([(0, 0), (1, 1), (2, 2)], 3)", d: "constellation_mapper([(0, 0), (1, 1), (2, 2)], 3)", x: "['*..', '.*.', '..*']" }, { e: "__fn([(0, 0), (1, 2), (3, 4)], 4)", d: "constellation_mapper([(0, 0), (1, 2), (3, 4)], 4)", x: "['*...', '..*.', '....', '....']" }] },
+    "official-2-03": { fn: "list_intersection_finder", tests: [{ e: "__fn([[1, 2, 2, 3], [2, 3, 4], [0, 2, 3, 3]])", d: "list_intersection_finder([[1, 2, 2, 3], [2, 3, 4], [0, 2, 3, 3]])", x: "[2, 3]" }, { e: "__fn([])", d: "list_intersection_finder([])", x: "[]" }] },
+    "official-2-04": { fn: "merge_sorted_list", tests: [{ e: "__fn([[1, 4, 5], [1, 3, 4], [2, 6]])", d: "merge_sorted_list([[1, 4, 5], [1, 3, 4], [2, 6]])", x: "[1, 1, 2, 3, 4, 4, 5, 6]" }, { e: "__fn([])", d: "merge_sorted_list([])", x: "[]" }] },
+    "official-2-05": { fn: "palindrome_partitioner", tests: [{ e: "__fn(\"aab\")", d: "palindrome_partitioner(\"aab\")", x: "1" }, { e: "__fn(\"a\")", d: "palindrome_partitioner(\"a\")", x: "0" }, { e: "__fn(\"\")", d: "palindrome_partitioner(\"\")", x: "0" }] },
+    "official-2-06": { fn: "sliding_window_maximum", tests: [{ e: "__fn([1, 3, -1, -3, 5, 3, 6, 7], 3)", d: "sliding_window_maximum([1, 3, -1, -3, 5, 3, 6, 7], 3)", x: "[3, 3, 5, 5, 6, 7]" }, { e: "__fn([1, 2], 0)", d: "sliding_window_maximum([1, 2], 0)", x: "[]" }, { e: "__fn([1, 2], 3)", d: "sliding_window_maximum([1, 2], 3)", x: "[]" }] },
+    "training-01": { fn: "rotate_list", tests: [{ e: "__fn([1, 2, 3, 4, 5], 2)", d: "rotate_list([1, 2, 3, 4, 5], 2)", x: "[4, 5, 1, 2, 3]" }, { e: "__fn([1, 2, 3], 7)", d: "rotate_list([1, 2, 3], 7)", x: "[3, 1, 2]" }, { e: "__fn([], 3)", d: "rotate_list([], 3)", x: "[]" }] },
+    "training-02": { fn: "column_sums", tests: [{ e: "__fn([[1, 2, 3], [4, 5, 6]])", d: "column_sums([[1, 2, 3], [4, 5, 6]])", x: "[5, 7, 9]" }, { e: "__fn([])", d: "column_sums([])", x: "[]" }] },
+    "training-03": { fn: "caesar_cipher", tests: [{ e: "__fn(\"abc\", 1)", d: "caesar_cipher(\"abc\", 1)", x: "'bcd'" }, { e: "__fn(\"xyz\", 3)", d: "caesar_cipher(\"xyz\", 3)", x: "'abc'" }, { e: "__fn(\"Hello, World!\", 5)", d: "caesar_cipher(\"Hello, World!\", 5)", x: "'Mjqqt, Btwqi!'" }] },
+    "training-04": { fn: "char_frequency_sorter", tests: [{ e: "__fn(\"aabbbc\")", d: "char_frequency_sorter(\"aabbbc\")", x: "[('b', 3), ('a', 2), ('c', 1)]" }] },
+    "training-05": { fn: "Stack", tests: [{ e: "(lambda s=__fn(): [s.push(1), s.push(3), s.pop(), s.peek(), s.is_empty()])()", d: "(lambda s=Stack(): [s.push(1), s.push(3), s.pop(), s.peek(), s.is_empty()])()", x: "[None, None, 3, 1, False]" }, { e: "(lambda s=__fn(): [s.pop(), s.peek(), s.is_empty()])()", d: "(lambda s=Stack(): [s.pop(), s.peek(), s.is_empty()])()", x: "[None, None, True]" }] },
+    "training-06": { fn: "Grades", tests: [{ e: "(lambda g=__fn(): [g.add(10), g.add(15), g.average(), g.highest()])()", d: "(lambda g=Grades(): [g.add(10), g.add(15), g.average(), g.highest()])()", x: "[None, None, 12.5, 15]" }, { e: "(lambda g=__fn(): [g.average(), g.highest()])()", d: "(lambda g=Grades(): [g.average(), g.highest()])()", x: "[0.0, None]" }] },
+    "official-1-01": { fn: "bracket_validator", tests: [{ e: "__fn(\"([]{})\")", d: "bracket_validator(\"([]{})\")", x: "True" }, { e: "__fn(\"([)]\")", d: "bracket_validator(\"([)]\")", x: "False" }, { e: "__fn(\"a(b)c\")", d: "bracket_validator(\"a(b)c\")", x: "True" }, { e: "__fn(\"\")", d: "bracket_validator(\"\")", x: "True" }] },
+    "official-1-02": { fn: "cryptic_sorter", tests: [{ e: "__fn([\"banana\", \"kiwi\", \"apple\", \"fig\"])", d: "cryptic_sorter([\"banana\", \"kiwi\", \"apple\", \"fig\"])", x: "['fig', 'kiwi', 'apple', 'banana']" }, { e: "__fn([\"bb\", \"aa\", \"a\"])", d: "cryptic_sorter([\"bb\", \"aa\", \"a\"])", x: "['a', 'aa', 'bb']" }] },
+    "official-1-03": { fn: "echo_validator", tests: [{ e: "__fn(\"A man, a plan, a canal: Panama\")", d: "echo_validator(\"A man, a plan, a canal: Panama\")", x: "True" }, { e: "__fn(\"Hello\")", d: "echo_validator(\"Hello\")", x: "False" }] },
+    "official-1-04": { fn: "mirror_matrix", tests: [{ e: "__fn([[1, 2, 3], [4, 5, 6]])", d: "mirror_matrix([[1, 2, 3], [4, 5, 6]])", x: "[[3, 2, 1], [6, 5, 4]]" }, { e: "__fn([])", d: "mirror_matrix([])", x: "[]" }] },
+    "official-1-05": { fn: "hidenp", tests: [{ e: "__fn(\"fgex.;\", \"tyf34gdgf;'ektufjhgdgex.;.;rtjynur6\")", d: "hidenp(\"fgex.;\", \"tyf34gdgf;'ektufjhgdgex.;.;rtjynur6\")", x: "True" }, { e: "__fn(\"abc\", \"acb\")", d: "hidenp(\"abc\", \"acb\")", x: "False" }, { e: "__fn(\"\", \"anything\")", d: "hidenp(\"\", \"anything\")", x: "True" }] },
+    "official-1-06": { fn: "inter", tests: [{ e: "__fn(\"padinton\", \"paqefwtdjetyiytjneytjoeyjnejeyj\")", d: "inter(\"padinton\", \"paqefwtdjetyiytjneytjoeyjnejeyj\")", x: "'padinto'" }, { e: "__fn(\"ddf6vewg64f\", \"gtwthgsertyhrdthrtr\")", d: "inter(\"ddf6vewg64f\", \"gtwthgsertyhrdthrtr\")", x: "'dewg'" }] },
+    "official-1-07": { fn: "number_base_converter", tests: [{ e: "__fn(\"FF\", 16, 2)", d: "number_base_converter(\"FF\", 16, 2)", x: "'11111111'" }, { e: "__fn(\"1010\", 2, 10)", d: "number_base_converter(\"1010\", 2, 10)", x: "'10'" }, { e: "__fn(\"Z1\", 36, 10)", d: "number_base_converter(\"Z1\", 36, 10)", x: "'1261'" }, { e: "__fn(\"12\", 1, 10)", d: "number_base_converter(\"12\", 1, 10)", x: "'ERROR'" }, { e: "__fn(\"-1A\", 16, 10)", d: "number_base_converter(\"-1A\", 16, 10)", x: "'-26'" }] },
+    "official-1-08": { fn: "pattern_tracker", tests: [{ e: "__fn(\"a12b34c90\")", d: "pattern_tracker(\"a12b34c90\")", x: "2" }, { e: "__fn(\"123\")", d: "pattern_tracker(\"123\")", x: "2" }, { e: "__fn(\"9012\")", d: "pattern_tracker(\"9012\")", x: "2" }] },
+    "official-1-09": { fn: "anagram", tests: [{ e: "__fn(\"Listen\", \"Silent\")", d: "anagram(\"Listen\", \"Silent\")", x: "True" }, { e: "__fn(\"dormitory\", \"dirty room\")", d: "anagram(\"dormitory\", \"dirty room\")", x: "True" }, { e: "__fn(\"hello\", \"world\")", d: "anagram(\"hello\", \"world\")", x: "False" }] },
+    "official-1-10": { fn: "shadow_merge", tests: [{ e: "__fn([1, 3, 5], [2, 4, 6])", d: "shadow_merge([1, 3, 5], [2, 4, 6])", x: "[1, 2, 3, 4, 5, 6]" }, { e: "__fn([1, 1], [1])", d: "shadow_merge([1, 1], [1])", x: "[1, 1, 1]" }, { e: "__fn([], [7, 8])", d: "shadow_merge([], [7, 8])", x: "[7, 8]" }] },
+    "official-1-11": { fn: "string_permutation_checker", tests: [{ e: "__fn(\"abc\", \"cab\")", d: "string_permutation_checker(\"abc\", \"cab\")", x: "True" }, { e: "__fn(\"abc\", \"abz\")", d: "string_permutation_checker(\"abc\", \"abz\")", x: "False" }, { e: "__fn(\"Abc\", \"abc\")", d: "string_permutation_checker(\"Abc\", \"abc\")", x: "False" }] },
+    "official-1-12": { fn: "string_sculptor", tests: [{ e: "__fn(\"hello world\")", d: "string_sculptor(\"hello world\")", x: "'hElLo WoRlD'" }, { e: "__fn(\"a1b2c3\")", d: "string_sculptor(\"a1b2c3\")", x: "'a1B2c3'" }] },
+    "official-1-13": { fn: "twist_sequence", tests: [{ e: "__fn([1, 2, 3, 4, 5], 2)", d: "twist_sequence([1, 2, 3, 4, 5], 2)", x: "[4, 5, 1, 2, 3]" }, { e: "__fn([1, 2, 3], 5)", d: "twist_sequence([1, 2, 3], 5)", x: "[2, 3, 1]" }, { e: "__fn([], 3)", d: "twist_sequence([], 3)", x: "[]" }] },
+    "official-1-14": { fn: "whisper_cipher", tests: [{ e: "__fn(\"abc\", 1)", d: "whisper_cipher(\"abc\", 1)", x: "'bcd'" }, { e: "__fn(\"XYZ\", 3)", d: "whisper_cipher(\"XYZ\", 3)", x: "'ABC'" }, { e: "__fn(\"a-b!\", 2)", d: "whisper_cipher(\"a-b!\", 2)", x: "'c-d!'" }] },
+};
+const exId = (ex) => { var _a; return ex.view === "official" ? `official-${(_a = ex.tab) !== null && _a !== void 0 ? _a : 2}-${ex.num}` : `${ex.view}-${ex.num}`; };
 /* ---- Coloration syntaxique Python ------------------------------------- */
 const KW = ["def", "class", "if", "elif", "else", "return", "for", "while", "in", "not", "or", "and", "None", "True", "False", "from", "import", "lambda"];
 const FN = ["sorted", "set", "len", "max", "min", "sum", "zip", "range", "ord", "chr", "append", "pop", "items", "isalpha", "isupper", "Counter", "intersection", "get", "any", "join", "print", "list", "tuple", "dict", "float", "bool", "str", "int"];
@@ -700,7 +901,12 @@ function setStatus(id, st) {
     refreshStats();
 }
 function refreshStats() {
-    const list = EXERCISES.filter((e) => e.view === view);
+    let list = EXERCISES.filter((e) => e.view === view);
+    if (view === "official") {
+        list = list.filter((e) => { var _a; return ((_a = e.tab) !== null && _a !== void 0 ? _a : 2) === activeTab; });
+        if (activeTab === 1 && activeLevel > 0)
+            list = list.filter((e) => e.level === activeLevel);
+    }
     let s = 0, r = 0;
     for (const e of list) {
         const st = progress[exId(e)];
@@ -739,14 +945,40 @@ const RANK_TABS = [
     "Challenging Python Algorithms",
     "In-depth Python Algorithms",
 ];
-const ACTIVE_TAB = 2; // Medium — seul onglet rempli pour l'instant
+let activeTab = 2; // Medium par défaut
+let activeLevel = 0; // 0 = tous les niveaux (tab Basic)
+function tabHasData(i) {
+    return EXERCISES.some((e) => { var _a; return e.view === "official" && ((_a = e.tab) !== null && _a !== void 0 ? _a : 2) === i; });
+}
 function renderTabs() {
     if (view !== "official") {
         tabsEl.innerHTML = "";
         return;
     }
-    tabsEl.innerHTML = RANK_TABS.map((name, i) => `<button type="button" ${i === ACTIVE_TAB ? 'class="active"' : "disabled title=\"Bientôt : ajoute tes sujets !\""}>${name}</button>`).join("");
+    let html = RANK_TABS.map((name, i) => `<button type="button" data-tab="${i}" ${tabHasData(i) ? (i === activeTab ? 'class="active"' : "") : 'disabled title="Bientôt : ajoute tes sujets !"'}>${name}</button>`).join("");
+    if (activeTab === 1) {
+        const levels = Array.from(new Set(EXERCISES.filter((e) => e.tab === 1).map((e) => { var _a; return (_a = e.level) !== null && _a !== void 0 ? _a : 0; }))).sort();
+        html += `<div class="sub-tabs">` +
+            `<button type="button" data-level="0" ${activeLevel === 0 ? 'class="active"' : ""}>Tous</button>` +
+            levels.map((l) => `<button type="button" data-level="${l}" ${activeLevel === l ? 'class="active"' : ""}>Niveau ${l}</button>`).join("") +
+            `</div>`;
+    }
+    tabsEl.innerHTML = html;
 }
+tabsEl.addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b || b.disabled)
+        return;
+    if (b.dataset.tab !== undefined) {
+        activeTab = +b.dataset.tab;
+        activeLevel = 0;
+        render();
+    }
+    else if (b.dataset.level !== undefined) {
+        activeLevel = +b.dataset.level;
+        render();
+    }
+});
 function openModal(ex) {
     setStatus(exId(ex), "seen");
     modalEl.innerHTML = `<button class="modal-close" type="button" aria-label="Fermer">✕</button>
@@ -801,7 +1033,13 @@ function applySearch() {
     emptyEl.classList.toggle("show", visible === 0);
 }
 function render() {
-    const list = EXERCISES.filter((e) => e.view === view);
+    var _a;
+    let list = EXERCISES.filter((e) => e.view === view);
+    if (view === "official") {
+        list = list.filter((e) => { var _a; return ((_a = e.tab) !== null && _a !== void 0 ? _a : 2) === activeTab; });
+        if (activeTab === 1 && activeLevel > 0)
+            list = list.filter((e) => e.level === activeLevel);
+    }
     const sections = [];
     const seen = new Set();
     for (const e of list)
@@ -817,9 +1055,22 @@ function render() {
     }
     grid.innerHTML = html;
     renderTabs();
-    heroKicker.textContent = HERO[view].kicker;
-    heroH1.textContent = HERO[view].h1;
-    heroSub.innerHTML = HERO[view].sub;
+    if (view === "official") {
+        heroKicker.textContent = "";
+        heroKicker.style.display = "none";
+        heroH1.textContent = RANK_TABS[activeTab];
+        const TAB_SUBS = {
+            1: `Les sujets officiels pour l'exam — <b>Basic Python Algorithms</b>. 14 sujets répartis en <b>6 niveaux</b> de difficulté croissante : choisis un niveau, tente en conditions, puis valide au <b>grademe</b>.`,
+            2: `Les sujets officiels pour l'exam — <b>Medium Python Algorithms</b>. Tirés des vrais attempts (rank 04) : tente-les en conditions, puis révèle la <b>solution la plus courte</b>.`,
+        };
+        heroSub.innerHTML = (_a = TAB_SUBS[activeTab]) !== null && _a !== void 0 ? _a : `Les sujets officiels pour l'exam — <b>${RANK_TABS[activeTab]}</b>.`;
+    }
+    else {
+        heroKicker.style.display = "";
+        heroKicker.textContent = HERO[view].kicker;
+        heroH1.textContent = HERO[view].h1;
+        heroSub.innerHTML = HERO[view].sub;
+    }
     footerEl.innerHTML = `${list.length} exercices · <span class="v">versions courtes</span> — bon courage pour l'exam 🍜`;
     applySearch();
     refreshStats();
@@ -841,11 +1092,22 @@ segButtons.forEach((btn) => {
 });
 searchInput.addEventListener("input", applySearch);
 resetBtn.addEventListener("click", () => {
-    if (!confirm("Réinitialiser toute ta progression (réussis, à revoir, vus) ?"))
+    if (!confirm("Réinitialiser toute ta progression (réussis, à revoir, vus) et les essais en cours ?"))
         return;
     progress = {};
-    saveProgress();
-    render();
+    try {
+        localStorage.removeItem(STORE_KEY);
+        localStorage.setItem(STORE_KEY, "{}");
+        localStorage.removeItem(STORE_KEY);
+    }
+    catch { /* rien */ }
+    closeModal();
+    if (document.body.classList.contains("mode-quiz"))
+        exitQuiz(); // stoppe aussi un quiz en cours
+    render(); // reconstruit les cartes sans badge
+    // ceinture + bretelles : aucun badge résiduel, compteurs à zéro
+    document.querySelectorAll(".status").forEach((el) => { el.className = "status"; el.textContent = ""; el.setAttribute("hidden", ""); });
+    refreshStats();
 });
 grid.addEventListener("click", (e) => {
     const card = e.target.closest(".card");
@@ -883,13 +1145,73 @@ overlayEl.addEventListener("click", (e) => {
 });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !overlayEl.hidden)
     closeModal(); });
+let pyodide = null;
+let pyodideLoading = null;
+function ensurePyodide() {
+    if (pyodide)
+        return Promise.resolve(pyodide);
+    if (pyodideLoading)
+        return pyodideLoading;
+    pyodideLoading = new Promise((resolve, reject) => {
+        const sc = document.createElement("script");
+        sc.src = "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js";
+        sc.onload = () => {
+            loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.2/full/" })
+                .then((p) => { pyodide = p; resolve(p); })
+                .catch(reject);
+        };
+        sc.onerror = () => reject(new Error("Impossible de charger Pyodide (connexion ?)"));
+        document.head.appendChild(sc);
+    });
+    return pyodideLoading;
+}
+async function grade(exid, userCode) {
+    const spec = GRADEME[exid];
+    if (!spec)
+        return { ok: false, err: "Pas de tests pour cet exercice." };
+    const py = await ensurePyodide();
+    py.globals.set("__user_code", userCode);
+    py.globals.set("__fn_name", spec.fn);
+    py.globals.set("__tests_json", JSON.stringify(spec.tests));
+    const res = py.runPython(`
+import json, io, contextlib
+def __grade():
+    tests = json.loads(__tests_json)
+    ns = {}
+    try:
+        with contextlib.redirect_stdout(io.StringIO()):
+            exec(__user_code, ns)
+    except Exception as e:
+        return json.dumps({"ok": False, "err": f"Erreur d'exécution : {e}"})
+    f = ns.get(__fn_name)
+    if f is None:
+        for k, v in ns.items():
+            if callable(v) and k.startswith(__fn_name):
+                f = v; break
+    if f is None:
+        return json.dumps({"ok": False, "err": f"'{__fn_name}' introuvable dans ton code"})
+    fails = []
+    for t in tests:
+        try:
+            with contextlib.redirect_stdout(io.StringIO()):
+                got = eval(t["e"], {**ns, "__fn": f})
+            got_r = repr(got)
+        except Exception as e:
+            got_r = f"exception: {e}"
+        if got_r != t["x"]:
+            fails.append({"d": t["d"], "got": got_r, "exp": t["x"]})
+    return json.dumps({"ok": not fails, "fails": fails})
+__grade()
+`);
+    return JSON.parse(res);
+}
 let quiz = null;
-let lastConfig = { source: "official", order: "ordered", perMs: 300000 };
+let lastConfig = { tab: 2, level: 0, order: "ordered", timed: false };
 function q(sel) { return quizEl.querySelector(sel); }
 function fmtClock(ms) {
-    const s = Math.max(0, Math.round(ms / 1000));
-    const m = Math.floor(s / 60);
-    return `${String(m).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+    const sec = Math.max(0, Math.round(ms / 1000));
+    const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60);
+    return (h ? `${h}:` : "") + `${String(m).padStart(2, "0")}:${String(sec % 60).padStart(2, "0")}`;
 }
 function shuffle(a) {
     for (let i = a.length - 1; i > 0; i--) {
@@ -903,7 +1225,9 @@ function enterQuiz() {
     browseEl.hidden = true;
     quizEl.hidden = false;
     quizToggle.textContent = "✕ Quitter le quiz";
-    lastConfig.source = view;
+    // pré-sélection cohérente avec ce que l'on regardait
+    lastConfig.tab = view === "training" ? 99 : (activeTab === 1 ? 1 : 2);
+    lastConfig.level = view === "official" && activeTab === 1 ? activeLevel : 0;
     renderSetup();
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -915,26 +1239,28 @@ function exitQuiz() {
     quizEl.hidden = true;
     browseEl.hidden = false;
     quizToggle.textContent = "▶ Mode quiz";
-    render(); // reflète les nouveaux statuts sur les cartes
+    render();
 }
 function renderSetup() {
-    const s = lastConfig.source, o = lastConfig.order, t = String(lastConfig.perMs / 1000);
-    const on = (a, b) => (a === b ? " active" : "");
+    const on = (a, b) => (a === b ? "active" : "");
+    const t = String(lastConfig.tab), lv = String(lastConfig.level), o = lastConfig.order, tm = lastConfig.timed ? "1" : "0";
+    const levels = Array.from(new Set(EXERCISES.filter((e) => e.tab === 1).map((e) => { var _a; return (_a = e.level) !== null && _a !== void 0 ? _a : 0; }))).sort();
     quizEl.innerHTML = `<div class="quiz-setup">
     <h2>Mode quiz</h2>
-    <p class="quiz-lead">Conditions d'exam : un exercice à la fois, solution cachée, minuteur. À la fin, ton score — et les exercices « à revoir » sont mémorisés.</p>
-    <div class="q-field"><label>Source</label><div class="segroup" data-group="source">
-      <button type="button" data-val="official" class="${on(s, "official").trim()}">Officiels</button>
-      <button type="button" data-val="training" class="${on(s, "training").trim()}">Entraînement</button>
-      <button type="button" data-val="all" class="${on(s, "all").trim()}">Tout</button></div></div>
+    <p class="quiz-lead">Conditions d'exam : un exercice à la fois, éditeur + grademe. En mode 3 h, une sélection aléatoire est tirée pour simuler un vrai sujet.</p>
+    <div class="q-field"><label>Tab</label><div class="segroup" data-group="tab">
+      <button type="button" data-val="1" class="${on(t, "1")}">Basic Python</button>
+      <button type="button" data-val="2" class="${on(t, "2")}">Medium Python</button>
+      <button type="button" data-val="99" class="${on(t, "99")}">Entraînement</button></div></div>
+    <div class="q-field" id="q-levels" ${t === "1" ? "" : "hidden"}><label>Niveau (sous-tab)</label><div class="segroup" data-group="level">
+      <button type="button" data-val="0" class="${on(lv, "0")}">Tous</button>
+      ${levels.map((l) => `<button type="button" data-val="${l}" class="${on(lv, String(l))}">Niveau ${l}</button>`).join("")}</div></div>
     <div class="q-field"><label>Ordre</label><div class="segroup" data-group="order">
-      <button type="button" data-val="ordered" class="${on(o, "ordered").trim()}">Dans l'ordre</button>
-      <button type="button" data-val="shuffle" class="${on(o, "shuffle").trim()}">Aléatoire</button></div></div>
-    <div class="q-field"><label>Temps / exercice</label><div class="segroup" data-group="time">
-      <button type="button" data-val="0" class="${on(t, "0").trim()}">Aucun</button>
-      <button type="button" data-val="180" class="${on(t, "180").trim()}">3 min</button>
-      <button type="button" data-val="300" class="${on(t, "300").trim()}">5 min</button>
-      <button type="button" data-val="600" class="${on(t, "600").trim()}">10 min</button></div></div>
+      <button type="button" data-val="ordered" class="${on(o, "ordered")}">Dans l'ordre</button>
+      <button type="button" data-val="shuffle" class="${on(o, "shuffle")}">Aléatoire</button></div></div>
+    <div class="q-field"><label>Temps</label><div class="segroup" data-group="time">
+      <button type="button" data-val="0" class="${on(tm, "0")}">Aucun — tous les exercices</button>
+      <button type="button" data-val="1" class="${on(tm, "1")}">⏱ 3 h — sujet aléatoire</button></div></div>
     <button type="button" class="q-start" id="q-start">Démarrer le quiz →</button>
   </div>`;
     quizEl.querySelectorAll(".segroup").forEach((group) => {
@@ -942,6 +1268,11 @@ function renderSetup() {
             b.addEventListener("click", () => {
                 group.querySelectorAll("button").forEach((x) => x.classList.remove("active"));
                 b.classList.add("active");
+                if (group.dataset.group === "tab") {
+                    const lvField = q("#q-levels");
+                    if (lvField)
+                        lvField.hidden = b.dataset.val !== "1";
+                }
             });
         });
     });
@@ -951,62 +1282,90 @@ function renderSetup() {
             return (b === null || b === void 0 ? void 0 : b.dataset.val) || "";
         };
         lastConfig = {
-            source: (val("source") || "official"),
+            tab: (parseInt(val("tab"), 10) || 2),
+            level: parseInt(val("level"), 10) || 0,
             order: (val("order") || "ordered"),
-            perMs: (parseInt(val("time"), 10) || 0) * 1000,
+            timed: val("time") === "1",
         };
         startQuiz(lastConfig);
     });
 }
+function poolFor(cfg) {
+    if (cfg.tab === 99)
+        return EXERCISES.filter((e) => e.view === "training");
+    let pool = EXERCISES.filter((e) => { var _a; return e.view === "official" && ((_a = e.tab) !== null && _a !== void 0 ? _a : 2) === cfg.tab; });
+    if (cfg.tab === 1 && cfg.level > 0)
+        pool = pool.filter((e) => e.level === cfg.level);
+    return pool;
+}
+function pickRandom(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function sampleTimed(cfg, pool) {
+    const hasLevels = pool.some((e) => e.level !== undefined);
+    if (hasLevels) {
+        // 4 exos de niveaux différents, tirés au hasard
+        const levels = shuffle(Array.from(new Set(pool.map((e) => { var _a; return (_a = e.level) !== null && _a !== void 0 ? _a : 0; })))).slice(0, 4);
+        const picked = levels.map((l) => pickRandom(pool.filter((e) => { var _a; return ((_a = e.level) !== null && _a !== void 0 ? _a : 0) === l; })));
+        // s'il y a moins de 4 niveaux dispo, on complète au hasard
+        while (picked.length < Math.min(4, pool.length)) {
+            const extra = pickRandom(pool);
+            if (!picked.includes(extra))
+                picked.push(extra);
+        }
+        return shuffle(picked);
+    }
+    return shuffle(pool.slice()).slice(0, Math.min(3, pool.length)); // Medium & co : 3 exos aléatoires
+}
+const THREE_HOURS = 3 * 60 * 60 * 1000;
 function startQuiz(cfg) {
-    let pool = cfg.source === "all" ? EXERCISES.slice() : EXERCISES.filter((e) => e.view === cfg.source);
+    let pool = poolFor(cfg);
     if (cfg.only)
         pool = pool.filter((e) => cfg.only.includes(exId(e)));
-    if (cfg.order === "shuffle")
-        shuffle(pool);
     if (pool.length === 0) {
         renderSetup();
         return;
     }
-    quiz = { queue: pool, index: 0, revealed: false, results: {}, perMs: cfg.perMs, startedAt: 0, elapsedTotal: 0, timerId: null };
+    let queue;
+    if (cfg.timed && !cfg.only)
+        queue = sampleTimed(cfg, pool);
+    else
+        queue = cfg.order === "shuffle" ? shuffle(pool.slice()) : pool.slice();
+    quiz = {
+        queue, index: 0, revealed: false, attempts: 0, results: {},
+        deadline: cfg.timed ? Date.now() + THREE_HOURS : null,
+        startedAt: Date.now(), timerId: null,
+    };
     renderQuestion();
 }
+/* chrono global : compte à rebours 3 h ou chronomètre simple */
 function startTimer() {
     if (!quiz)
         return;
-    quiz.startedAt = Date.now();
     if (quiz.timerId) {
         clearInterval(quiz.timerId);
         quiz.timerId = null;
-    }
-    const el = q("#q-timer");
-    if (quiz.perMs <= 0) {
-        if (el)
-            el.textContent = "∞";
-        return;
     }
     const tick = () => {
         if (!quiz)
             return;
-        const remaining = quiz.perMs - (Date.now() - quiz.startedAt);
         const e = q("#q-timer");
-        if (e) {
-            e.textContent = fmtClock(remaining);
-            e.classList.toggle("danger", remaining <= 30000 && remaining > 0);
-            e.classList.toggle("over", remaining <= 0);
+        if (!e)
+            return;
+        if (quiz.deadline === null) {
+            e.textContent = fmtClock(Date.now() - quiz.startedAt);
+            return;
+        }
+        const remaining = quiz.deadline - Date.now();
+        e.textContent = fmtClock(remaining);
+        e.classList.toggle("danger", remaining <= 10 * 60 * 1000 && remaining > 0);
+        if (remaining <= 0) { // temps écoulé → fin du quiz
+            e.classList.add("over");
+            if (quiz.timerId)
+                clearInterval(quiz.timerId);
+            renderResults();
         }
     };
     tick();
-    quiz.timerId = window.setInterval(tick, 250);
-}
-function stopTimer() {
-    if (!quiz)
-        return;
-    if (quiz.timerId) {
-        clearInterval(quiz.timerId);
-        quiz.timerId = null;
-    }
-    quiz.elapsedTotal += Date.now() - quiz.startedAt;
+    quiz.timerId = window.setInterval(tick, 500);
 }
 function renderQuestion() {
     if (!quiz)
@@ -1020,6 +1379,7 @@ function renderQuestion() {
     const bullets = ex.brief.map((b) => `<li>${b}</li>`).join("");
     const pct = (quiz.index / quiz.queue.length) * 100;
     quiz.revealed = false;
+    quiz.attempts = 0;
     quizEl.innerHTML = `<div class="quiz-run">
     <div class="q-top">
       <span class="q-count">Exercice ${quiz.index + 1} / ${quiz.queue.length}</span>
@@ -1035,45 +1395,105 @@ function renderQuestion() {
       <p class="analogy">${ex.analogy}</p>
       <pre class="proto">${highlight(ex.signature)}</pre>
       <ul class="consigne">${bullets}</ul>
+      <label class="q-editor-label">Ta solution :</label>
+      <textarea class="q-editor" id="q-editor" spellcheck="false" placeholder="Écris ton code Python ici…"></textarea>
+      <div class="q-feedback" id="q-feedback" hidden></div>
       <div class="q-solution" id="q-solution" hidden>
         <div class="code-wrap"><button class="copy-btn" type="button">Copier</button><pre>${highlight(ex.solution)}</pre></div>
         <p class="sol-note">${ex.note}</p>
       </div>
       <div class="q-actions" id="q-actions">
-        <button type="button" class="q-primary" id="q-reveal">Révéler la solution</button>
-        <button type="button" class="ghost" id="q-skip">Passer</button>
-      </div>
-      <div class="q-verdict" id="q-verdict" hidden>
-        <span class="q-verdict-label">Comment t'en es-tu sorti ?</span>
-        <button type="button" class="ok" id="q-success">✓ Réussi</button>
-        <button type="button" class="warn" id="q-review">✗ À revoir</button>
+        <button type="button" class="q-primary" id="q-grademe">⚡ Grademe</button>
+        <button type="button" class="ghost" id="q-reveal">Révéler la solution</button>
+        <button type="button" class="ghost" id="q-skip">Passer (→ à revoir)</button>
+        <span class="q-attempts" id="q-attempts"></span>
       </div>
     </article>
   </div>`;
+    q("#q-grademe").addEventListener("click", runGrademe);
     q("#q-reveal").addEventListener("click", reveal);
-    q("#q-skip").addEventListener("click", () => nextWith("skip"));
-    q("#q-success").addEventListener("click", () => nextWith("success"));
-    q("#q-review").addEventListener("click", () => nextWith("review"));
+    q("#q-skip").addEventListener("click", () => nextWith("review"));
+    q("#q-editor").addEventListener("keydown", (e) => {
+        if (e.key === "Tab") { // indentation dans l'éditeur
+            e.preventDefault();
+            const ta = e.target;
+            const p = ta.selectionStart;
+            ta.value = ta.value.slice(0, p) + "    " + ta.value.slice(ta.selectionEnd);
+            ta.selectionStart = ta.selectionEnd = p + 4;
+        }
+    });
     startTimer();
+}
+async function runGrademe() {
+    if (!quiz)
+        return;
+    const ex = quiz.queue[quiz.index];
+    const btn = q("#q-grademe");
+    const fb = q("#q-feedback");
+    const code = q("#q-editor").value;
+    if (!code.trim()) {
+        fb.hidden = false;
+        fb.className = "q-feedback ko";
+        fb.innerHTML = "Écris ta solution d'abord 😉";
+        return;
+    }
+    quiz.attempts++;
+    btn.disabled = true;
+    btn.textContent = "⏳ Correction…";
+    fb.hidden = false;
+    fb.className = "q-feedback";
+    fb.innerHTML = "Chargement de Python dans le navigateur (première fois : ~10 s)…";
+    let r;
+    try {
+        r = await grade(exId(ex), code);
+    }
+    catch (err) {
+        fb.className = "q-feedback ko";
+        fb.innerHTML = `Grademe indisponible (${err.message}). Compare avec la solution et auto-évalue :
+      <div class="q-verdict"><button type="button" class="ok" id="q-manual-ok">✓ Réussi</button>
+      <button type="button" class="warn" id="q-manual-ko">✗ À revoir</button></div>`;
+        q("#q-manual-ok").addEventListener("click", () => nextWith("success"));
+        q("#q-manual-ko").addEventListener("click", () => nextWith("review"));
+        btn.disabled = false;
+        btn.textContent = "⚡ Grademe";
+        return;
+    }
+    btn.disabled = false;
+    btn.textContent = "⚡ Grademe";
+    const att = q("#q-attempts");
+    if (att)
+        att.textContent = `tentative ${quiz.attempts}`;
+    if (r.ok) {
+        fb.className = "q-feedback okmsg";
+        fb.innerHTML = `✅ <b>Validé en ${quiz.attempts} tentative${quiz.attempts > 1 ? "s" : ""} !</b> Exercice suivant…`;
+        setTimeout(() => nextWith("success"), 1100);
+    }
+    else {
+        setStatus(exId(ex), "review"); // marqué à revoir tant que non validé
+        fb.className = "q-feedback ko";
+        if (r.err)
+            fb.innerHTML = `❌ ${r.err} — corrige et retente !`;
+        else {
+            const rows = (r.fails || []).slice(0, 3).map((f) => `<div class="q-fail"><code>${f.d}</code><br>attendu <code>${f.exp}</code> · obtenu <code>${f.got}</code></div>`).join("");
+            fb.innerHTML = `❌ <b>${(r.fails || []).length} test(s) échoué(s)</b> — corrige et retente !${rows}`;
+        }
+    }
 }
 function reveal() {
     if (!quiz || quiz.revealed)
         return;
     quiz.revealed = true;
-    stopTimer();
-    const sol = q("#q-solution"), act = q("#q-actions"), ver = q("#q-verdict");
+    setStatus(exId(quiz.queue[quiz.index]), "review"); // solution vue → à retravailler
+    const sol = q("#q-solution");
     if (sol)
         sol.hidden = false;
-    if (act)
-        act.hidden = true;
-    if (ver)
-        ver.hidden = false;
+    const btn = q("#q-reveal");
+    if (btn)
+        btn.disabled = true;
 }
 function nextWith(v) {
     if (!quiz)
         return;
-    if (!quiz.revealed)
-        stopTimer(); // "Passer" avant d'avoir révélé
     const ex = quiz.queue[quiz.index];
     quiz.results[exId(ex)] = v;
     if (v === "success" || v === "review")
@@ -1084,6 +1504,11 @@ function nextWith(v) {
 function renderResults() {
     if (!quiz)
         return;
+    if (quiz.timerId) {
+        clearInterval(quiz.timerId);
+        quiz.timerId = null;
+    }
+    const elapsed = Date.now() - quiz.startedAt;
     const total = quiz.queue.length;
     let success = 0;
     const toReview = [];
@@ -1111,7 +1536,7 @@ function renderResults() {
       <text class="ring-text" x="60" y="69">${pct}%</text>
     </svg>
     <h2>${success} / ${total} réussis</h2>
-    <p class="results-time">Temps total : ${fmtClock(quiz.elapsedTotal)}</p>
+    <p class="results-time">Temps total : ${fmtClock(elapsed)}</p>
     ${reviewHTML}
     <div class="q-actions">
       <button type="button" class="q-primary" id="q-restart">Recommencer</button>
@@ -1124,7 +1549,7 @@ function renderResults() {
     q("#q-quit").addEventListener("click", exitQuiz);
     const redo = q("#q-redo");
     if (redo)
-        redo.addEventListener("click", () => startQuiz({ ...lastConfig, order: "ordered", only: reviewIds }));
+        redo.addEventListener("click", () => startQuiz({ ...lastConfig, timed: false, order: "ordered", only: reviewIds }));
     quiz = null; // le quiz est terminé ; les stats sont déjà sauvegardées
 }
 // copier depuis la solution révélée en quiz
@@ -1138,23 +1563,6 @@ quizEl.addEventListener("click", (e) => {
         t.classList.add("done");
         setTimeout(() => { t.textContent = "Copier"; t.classList.remove("done"); }, 1500);
     });
-});
-// raccourcis clavier en quiz : Entrée/Espace = révéler, 1 = réussi, 2 = à revoir
-document.addEventListener("keydown", (e) => {
-    if (!document.body.classList.contains("mode-quiz") || !quiz)
-        return;
-    if (e.key === "Enter" || e.key === " ") {
-        if (!quiz.revealed && q("#q-reveal")) {
-            e.preventDefault();
-            reveal();
-        }
-    }
-    else if (quiz.revealed && e.key === "1") {
-        nextWith("success");
-    }
-    else if (quiz.revealed && e.key === "2") {
-        nextWith("review");
-    }
 });
 quizToggle.addEventListener("click", () => {
     if (document.body.classList.contains("mode-quiz"))
