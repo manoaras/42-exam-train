@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exam Medium Python 42 — Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#141127;--bg-2:#100d20;--panel:#1e1a3a;--panel-2:#252048;--code-bg:#0e0c1c;
+    --ink:#eceafa;--muted:#9c96c4;--vermilion:#ff5a3c;--gold:#f0c04a;--indigo:#8a82ff;
+    --line:#302a54;--line-soft:#241f42;--ok:#66d69a;--warn:#f0c04a;--radius:16px;
+    --accent:var(--gold);
+  }
+  body.view-official{--accent:var(--gold)}
+  body.view-training{--accent:var(--vermilion)}
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased;
+    font-family:"Space Grotesk",system-ui,-apple-system,sans-serif;
+    background:
+      radial-gradient(1100px 560px at 82% -8%, rgba(138,130,255,.15), transparent 60%),
+      radial-gradient(820px 460px at -5% 2%, rgba(255,90,60,.10), transparent 55%),
+      var(--bg);}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 22px}
+
+  .toolbar{position:sticky;top:0;z-index:50;background:rgba(20,17,39,.82);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line-soft)}
+  .toolbar-inner{max-width:1280px;margin:0 auto;padding:11px 22px;display:flex;align-items:center;gap:13px;flex-wrap:wrap}
+  .brand{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:.82rem;
+    color:var(--ink);white-space:nowrap;display:flex;align-items:center;gap:8px}
+  .brand .glyph{color:var(--accent);transition:color .25s}
+  .seg{display:flex;border:1px solid var(--line);border-radius:99px;overflow:hidden;
+    font-family:"JetBrains Mono",monospace;font-size:.71rem}
+  .seg button{background:none;border:none;padding:7px 14px;color:var(--muted);cursor:pointer;
+    font-family:inherit;font-size:inherit;transition:color .15s,background .2s}
+  .seg button:hover{color:var(--ink)}
+  .seg button.active{background:var(--accent);color:var(--bg);font-weight:700}
+  .search{flex:1 1 130px;min-width:100px;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;color:var(--ink);font-family:"Space Grotesk",sans-serif;font-size:.86rem;
+    padding:8px 12px;outline:none;transition:border-color .15s}
+  .search::placeholder{color:var(--muted)}
+  .search:focus{border-color:var(--indigo)}
+  .tbtn{background:var(--panel);border:1px solid var(--line);border-radius:10px;color:var(--muted);
+    font-family:"JetBrains Mono",monospace;font-size:.74rem;padding:8px 12px;cursor:pointer;
+    white-space:nowrap;transition:all .15s}
+  .tbtn:hover{color:var(--ink);border-color:var(--indigo)}
+  .quiz-toggle{border-color:rgba(138,130,255,.5);color:var(--indigo)}
+  .quiz-toggle:hover{background:rgba(138,130,255,.12);color:var(--ink)}
+
+  .progress{display:flex;align-items:center;gap:9px;font-family:"JetBrains Mono",monospace;
+    font-size:.74rem;color:var(--muted);white-space:nowrap}
+  .stat{display:inline-flex;align-items:center;gap:3px}
+  .stat.ok{color:var(--ok)}
+  .stat.warn{color:var(--warn)}
+  .bar{width:52px;height:5px;border-radius:99px;background:var(--line);overflow:hidden}
+  .bar > i{display:block;height:100%;width:0;border-radius:99px;
+    background:linear-gradient(90deg,var(--ok),var(--indigo));transition:width .35s ease}
+  .icon-btn{background:none;border:1px solid var(--line);border-radius:8px;color:var(--muted);
+    width:26px;height:26px;cursor:pointer;font-size:.85rem;line-height:1;transition:all .15s}
+  .icon-btn:hover{color:var(--vermilion);border-color:var(--vermilion)}
+
+  body.mode-quiz .seg,
+  body.mode-quiz .search,
+    body.mode-quiz .progress{display:none}
+
+  header.hero{padding:52px 0 8px}
+  .kicker{font-family:"JetBrains Mono",monospace;font-size:.76rem;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--accent);margin-bottom:14px;transition:color .25s}
+  h1{font-size:2.6rem;line-height:1.08;margin:0 0 14px;font-weight:700;letter-spacing:-.025em}
+  .sub{color:var(--muted);max-width:64ch;margin:0}
+  .sub code{font-family:"JetBrains Mono",monospace;color:var(--gold);
+    background:rgba(240,192,74,.1);padding:1px 6px;border-radius:5px;font-size:.85em}
+  .sub b{color:var(--ok);font-weight:500}
+
+
+  .rank-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0 0}
+  .rank-tabs button{background:var(--panel);border:1px solid var(--line);border-radius:99px;
+    color:var(--muted);font-family:"JetBrains Mono",monospace;font-size:.72rem;padding:7px 14px;
+    cursor:pointer;transition:all .15s}
+  .rank-tabs button:hover:not(:disabled){color:var(--ink);border-color:var(--indigo)}
+  .rank-tabs button.active{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:700}
+  .rank-tabs button:disabled{opacity:.38;cursor:not-allowed}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(560px,1fr));gap:20px;align-items:start;margin-top:14px}
+  .grid .section-title{grid-column:1 / -1;font-family:"JetBrains Mono",monospace;font-size:.85rem;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:32px 0 2px;padding-bottom:10px;
+    border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+  .grid .section-title:first-child{margin-top:12px}
+  .grid .section-title .dot{width:9px;height:9px;border-radius:50%;background:var(--accent);flex:none}
+  .grid .section-title .count{margin-left:auto;font-size:.72rem;color:#5c5688}
+
+  .card{background:linear-gradient(180deg,var(--panel),var(--bg) 260%);border:1px solid var(--line);
+    border-radius:var(--radius);padding:24px 24px 20px;position:relative;overflow:hidden;
+    transition:border-color .2s}
+  .card:hover{border-color:#3d3668}
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;
+    background:linear-gradient(var(--accent),var(--indigo))}
+  .head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+  .num{font-family:"JetBrains Mono",monospace;font-weight:700;color:var(--accent);font-size:1.05rem}
+  .title{font-size:1.2rem;font-weight:600;margin:0;letter-spacing:-.01em}
+  .title .file{font-family:"JetBrains Mono",monospace;font-size:.9rem;color:var(--ink);font-weight:500}
+  .tag{font-family:"JetBrains Mono",monospace;font-size:.71rem;color:var(--gold);
+    border:1px solid rgba(240,192,74,.35);padding:3px 9px;border-radius:20px;white-space:nowrap}
+  .badge-real{font-family:"JetBrains Mono",monospace;font-size:.67rem;color:var(--bg);
+    background:var(--gold);font-weight:700;padding:3px 9px;border-radius:20px;
+    white-space:nowrap;text-transform:uppercase;letter-spacing:.05em}
+  .status{font-family:"JetBrains Mono",monospace;font-size:.67rem;padding:3px 9px;border-radius:20px;
+    white-space:nowrap;border:1px solid transparent}
+  .status[hidden]{display:none}
+  .status.ok{color:var(--ok);border-color:rgba(102,214,154,.4);background:rgba(102,214,154,.08)}
+  .status.warn{color:var(--warn);border-color:rgba(240,192,74,.4);background:rgba(240,192,74,.08)}
+  .status.seen{color:var(--muted);border-color:var(--line)}
+  .analogy{color:var(--muted);font-style:italic;margin:12px 0 16px;padding-left:14px;border-left:2px solid var(--line)}
+  ul.consigne{margin:12px 0;padding-left:20px}
+  ul.consigne li{margin:5px 0}
+  ul.consigne code, p code, .analogy code{font-family:"JetBrains Mono",monospace;font-size:.85em;
+    background:rgba(138,130,255,.15);color:#cdc8ff;padding:1px 6px;border-radius:5px}
+
+  pre{background:var(--code-bg);border:1px solid var(--line);border-radius:10px;padding:16px 18px;
+    overflow-x:auto;margin:14px 0;font-family:"JetBrains Mono",monospace;font-size:.84rem;
+    line-height:1.65;color:#dcd8f2}
+  pre .c{color:#716b9c}pre .k{color:var(--vermilion)}pre .s{color:var(--gold)}pre .f{color:var(--indigo)}
+  .proto{border-color:rgba(240,192,74,.28)}
+
+  details.sol{margin-top:16px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2);overflow:hidden}
+  details.sol > summary{cursor:pointer;list-style:none;user-select:none;padding:13px 18px;
+    font-family:"JetBrains Mono",monospace;font-size:.85rem;font-weight:500;color:var(--ok);
+    display:flex;align-items:center;gap:10px;transition:background .15s}
+  details.sol > summary:hover{background:rgba(102,214,154,.08)}
+  details.sol > summary::-webkit-details-marker{display:none}
+  .chev{display:inline-block;transition:transform .2s;color:var(--ok);font-size:.9rem}
+  details[open] .chev{transform:rotate(90deg)}
+  details[open] > summary{border-bottom:1px solid var(--line)}
+  .summary-hint{margin-left:auto;color:var(--muted);font-size:.72rem;font-weight:400}
+  details[open] .summary-hint{display:none}
+  .sol-body{padding:4px 18px 18px}
+  .code-wrap{position:relative}
+  .copy-btn{position:absolute;top:22px;right:10px;z-index:2;background:var(--panel);
+    border:1px solid var(--line);border-radius:7px;color:var(--muted);
+    font-family:"JetBrains Mono",monospace;font-size:.68rem;padding:4px 9px;cursor:pointer;
+    opacity:0;transition:opacity .15s,color .15s}
+  .code-wrap:hover .copy-btn{opacity:1}
+  .copy-btn:hover{color:var(--ok);border-color:var(--ok)}
+  .copy-btn.done{color:var(--ok);opacity:1}
+  .sol-note{color:var(--muted);font-size:.92rem;margin:12px 0 0}
+  .sol-note b{color:var(--ink);font-weight:500}
+
+  .empty{display:none;text-align:center;color:var(--muted);font-family:"JetBrains Mono",monospace;
+    font-size:.85rem;padding:40px 0}
+  .empty.show{display:block}
+
+  footer{margin:48px 0 72px;text-align:center;color:var(--muted);font-family:"JetBrains Mono",monospace;font-size:.8rem}
+  footer .v{color:var(--accent)}
+
+  /* ---------- QUIZ ---------- */
+  .quiz{max-width:700px;margin:0 auto;padding:44px 0 72px}
+  .quiz h2{font-size:1.9rem;margin:0 0 6px;letter-spacing:-.02em}
+  .quiz-lead{color:var(--muted);margin:0 0 26px}
+  .q-field{margin:0 0 20px}
+  .q-field > label{display:block;font-family:"JetBrains Mono",monospace;font-size:.72rem;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
+  .segroup{display:inline-flex;flex-wrap:wrap;gap:8px}
+  .segroup button{background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    color:var(--muted);font-family:"JetBrains Mono",monospace;font-size:.8rem;padding:9px 15px;
+    cursor:pointer;transition:all .15s}
+  .segroup button:hover{color:var(--ink);border-color:var(--indigo)}
+  .segroup button.active{background:var(--indigo);border-color:var(--indigo);color:var(--bg);font-weight:700}
+  .q-start,.q-primary{margin-top:10px;background:var(--accent);border:none;border-radius:12px;
+    color:var(--bg);font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:.98rem;
+    padding:13px 22px;cursor:pointer;transition:transform .12s,filter .15s}
+  .q-start:hover,.q-primary:hover{filter:brightness(1.08)}
+  .q-start:active,.q-primary:active{transform:translateY(1px)}
+
+  .q-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .q-count{font-family:"JetBrains Mono",monospace;font-size:.8rem;color:var(--muted)}
+  .q-timer{font-family:"JetBrains Mono",monospace;font-size:1.5rem;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+  .q-timer.danger{color:var(--warn)}
+  .q-timer.over{color:var(--vermilion)}
+  .q-bar{height:5px;border-radius:99px;background:var(--line);overflow:hidden;margin-bottom:22px}
+  .q-bar > i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--indigo));transition:width .3s}
+  .q-card{padding:26px}
+  .q-solution{margin-top:16px;border-top:1px solid var(--line);padding-top:8px}
+  .q-actions{display:flex;gap:12px;align-items:center;margin-top:20px;flex-wrap:wrap}
+  .ghost{background:none;border:1px solid var(--line);border-radius:12px;color:var(--muted);
+    font-family:"Space Grotesk",sans-serif;font-size:.9rem;padding:12px 18px;cursor:pointer;transition:all .15s}
+  .ghost:hover{color:var(--ink);border-color:var(--indigo)}
+  .q-verdict{display:flex;gap:12px;align-items:center;margin-top:20px;flex-wrap:wrap}
+  .q-verdict-label{color:var(--muted);font-size:.92rem;margin-right:4px}
+  .q-verdict button{border:none;border-radius:12px;font-family:"Space Grotesk",sans-serif;
+    font-weight:600;font-size:.92rem;padding:11px 18px;cursor:pointer;transition:filter .15s,transform .12s}
+  .q-verdict button:active{transform:translateY(1px)}
+  .q-verdict .ok{background:var(--ok);color:var(--bg)}
+  .q-verdict .warn{background:var(--warn);color:var(--bg)}
+
+  .quiz-results{text-align:center}
+  .ring{width:150px;height:150px;margin:0 auto 6px;display:block}
+  .ring-bg{fill:none;stroke:var(--line);stroke-width:10}
+  .ring-fg{fill:none;stroke:var(--ok);stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .6s ease}
+  .ring-text{fill:var(--ink);font-family:"JetBrains Mono",monospace;font-size:26px;font-weight:700;text-anchor:middle}
+  .results-time{color:var(--muted);font-family:"JetBrains Mono",monospace;margin:0 0 22px}
+  .review-list{text-align:left;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;
+    padding:16px 20px;margin:0 auto 24px;max-width:440px}
+  .review-list h3{font-family:"JetBrains Mono",monospace;font-size:.78rem;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--warn);margin:0 0 10px}
+  .review-list ul{margin:0;padding-left:18px;color:var(--muted)}
+  .review-list li{margin:4px 0}
+  .review-list code{font-family:"JetBrains Mono",monospace;color:#cdc8ff}
+  .quiz-results .q-actions{justify-content:center}
+
+  
+  @media (max-width:640px){.grid{grid-template-columns:1fr}}
+  .card{cursor:pointer}
+  .card .hint-open{font-family:"JetBrains Mono",monospace;font-size:.72rem;color:var(--ok);margin-top:14px}
+  .overlay{position:fixed;inset:0;z-index:100;background:rgba(10,8,22,.72);
+    backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:24px}
+  .overlay[hidden]{display:none}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    max-width:760px;width:100%;max-height:86vh;overflow:auto;padding:26px 28px;position:relative}
+  .modal-close{position:absolute;top:14px;right:14px;background:none;border:1px solid var(--line);
+    border-radius:8px;color:var(--muted);width:30px;height:30px;cursor:pointer;font-size:1rem}
+  .modal-close:hover{color:var(--vermilion);border-color:var(--vermilion)}
+  .modal h2{margin:0 0 4px;font-size:1.3rem}
+  .modal .sol-note{margin-top:14px}
+
+  @media (max-width:620px){
+    header.hero{padding:36px 0 4px}h1{font-size:2rem}
+    .brand span.long{display:none}
+    .switch .switch-label{display:none}
+    .quiz h2{font-size:1.5rem}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="toolbar-inner">
+    <div class="brand"><span class="glyph">◆</span><span class="long">Exam Python · 42</span></div>
+    <div class="seg" role="tablist" aria-label="Choix de la vue">
+      <button type="button" data-view="official" class="active" role="tab">Officiels</button>
+      <button type="button" data-view="training" role="tab">Entraînement</button>
+    </div>
+    <input id="search" class="search" type="search" placeholder="Filtrer…" aria-label="Filtrer les exercices">
+    <button type="button" class="tbtn quiz-toggle" id="quiz-toggle">▶ Mode quiz</button>
+    <div class="progress" id="progress" title="Maîtrise : réussis / à revoir">
+      <span class="stat ok">✓<b id="stat-success">0</b></span>
+      <span class="stat warn">↻<b id="stat-review">0</b></span>
+      <span class="bar"><i id="progress-bar"></i></span>
+      <span id="progress-total" hidden>0</span>
+      <button class="icon-btn" id="reset-progress" type="button" title="Réinitialiser la progression">⟳</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div id="browse">
+    <header class="hero">
+      <div class="kicker" id="hero-kicker"></div>
+      <h1 id="hero-h1"></h1>
+      <p class="sub" id="hero-sub"></p>
+    </header>
+
+    <div class="rank-tabs" id="rank-tabs"></div>
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="empty">Aucun exercice ne correspond à ce filtre.</div>
+
+    <footer id="footer"></footer>
+  </div>
+
+  <section id="quiz" class="quiz" hidden></section>
+</div>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="modal" id="modal" role="dialog" aria-modal="true"></div>
+</div>
+<div hidden>
+</div>
+
+<script>
+"use strict";
+/* =========================================================================
+   Rank 04 · Exam Medium Python — Trainer (TypeScript source)
+   Un seul site, deux vues (Officiels / Entraînement) + un mode quiz.
+   Piloté par les données : pour ajouter un exercice, ajoute un objet à
+   EXERCISES — la grille, les sections, le filtre et le quiz s'adaptent seuls.
+   ========================================================================= */
+const HERO = {
+    official: {
+        kicker: "Sujets officiels · Exam Medium Python",
+        h1: "Exercices officiels",
+        sub: `Les sujets <b>réellement tombés</b> à ton exam medium (rank 04). Tente-les en conditions, puis révèle la <b>solution la plus courte</b>.`,
+    },
+    training: {
+        kicker: "Entraînement · Exam Medium Python",
+        h1: "Exercices d'entraînement",
+        sub: `Des exercices dans le <b>format de l'exam</b>, rangés par concept, pour muscler tes réflexes. Solutions masquées, en <b>version la plus courte</b>.`,
+    },
+};
+/* ---- Données des exercices -------------------------------------------- */
+const EXERCISES = [
+    /* ============ OFFICIELS ============ */
+    {
+        view: "official", section: "Sujets tombés à l'exam", num: "01",
+        heading: `<span class="file">is_rotation.py</span>`,
+        tag: "doubled list trick",
+        analogy: `🎡 Une roue qui tourne : colle-la deux fois bout à bout, et toute rotation devient une simple tranche continue dans cette roue doublée.`,
+        brief: [
+            `Détermine si <code>arr2</code> est une rotation de <code>arr1</code> (à gauche ou à droite).`,
+            `Longueurs différentes → <code>False</code>. Deux listes vides → <code>True</code>.`,
+            `Exemple : <code>is_rotation([1,2,3,4,5], [4,5,1,2,3])</code> → <code>True</code>`,
+        ],
+        signature: `def is_rotation(arr1: list, arr2: list) -> bool:`,
+        solution: `def is_rotation(arr1: list, arr2: list) -> bool:
+    if len(arr1) != len(arr2):
+        return False
+
+    double = arr1 + arr1
+
+    return any(double[i:i+len(arr2)] == arr2 for i in range(len(arr1)))
+
+
+print(is_rotation([1, 2, 3, 4, 5], [4, 5, 1, 2, 3]))  # True
+print(is_rotation([1, 2, 3, 4, 5], [3, 4, 5, 1, 2]))  # True
+print(is_rotation([1, 2, 3, 4, 5], [2, 3, 4, 5, 6]))  # False
+print(is_rotation([1, 2, 3, 4, 5], [1, 2, 3, 4]))     # False`,
+        note: `<b>Le trick à connaître :</b> coller la liste à elle-même (<code>arr1 + arr1</code>) fait apparaître <b>toutes</b> les rotations possibles comme sous-tranches consécutives. Il suffit de vérifier si <code>arr2</code> en est une — même trick que pour la rotation de strings (<code>s2 in s1+s1</code>).`,
+        search: "is_rotation rotation liste doubled list trick",
+    },
+    {
+        view: "official", section: "Sujets tombés à l'exam", num: "02",
+        heading: `<span class="file">constellation_mapper.py</span>`,
+        tag: "grid + tuple unpack",
+        analogy: `🌌 Une carte du ciel : tu poses une grille vide de points, puis tu allumes une étoile à chaque coordonnée — en ignorant celles hors du cadre.`,
+        brief: [
+            `Construit une grille <code>size</code> × <code>size</code> de <code>"."</code>, avec un <code>"*"</code> à chaque coordonnée <code>(ligne, colonne)</code> fournie.`,
+            `Ignore les coordonnées hors-grille et les doublons.`,
+            `Exemple : <code>constellation_mapper([(0,0),(1,1),(2,2)], 3)</code> → <code>["*..", ".*.", "..*"]</code>`,
+        ],
+        signature: `def constellation_mapper(stars: list[tuple[int, int]], size: int) -> list[str]:`,
+        solution: `def constellation_mapper(stars: list[tuple[int, int]], size: int) -> list[str]:
+    grid = [['.'] * size for _ in range(size)]
+
+    for row, col in stars:
+        if 0 <= row < size and 0 <= col < size:
+            grid[row][col] = '*'
+
+    return [''.join(line) for line in grid]
+
+
+print(constellation_mapper([(0, 0), (1, 1), (2, 2)], 3))
+# output: ['*..', '.*.', '..*']
+
+print(constellation_mapper([(0, 0), (1, 2), (3, 4)], 3))
+# output: ['*..', '..*', '...']
+
+print(constellation_mapper([(0, 0), (1, 2), (3, 4)], 4))
+# output: ['*...', '..*.', '....', '....']
+
+print(constellation_mapper([(0, 0), (1, 2), (3, 4)], 5))
+# output: ['*....', '..*..', '.....', '.....', '.....']`,
+        note: `<b>2 réflexes utiles :</b> une grille se construit avec une compréhension imbriquée (une ligne = <code>size</code> points), et rallumer deux fois la même case avec <code>'*'</code> ne change rien — les doublons sont donc ignorés <b>gratuitement</b>.`,
+        search: "constellation_mapper grille grid tuple etoiles stars",
+    },
+    {
+        view: "official", section: "Sujets tombés à l'exam", num: "03",
+        heading: `<span class="file">list_intersection_finder.py</span>`,
+        badge: "Attempt 1", tag: "set + intersection",
+        analogy: `🎯 Plusieurs groupes d'amis : l'intersection, c'est <b>qui est présent dans TOUS les groupes</b>. Les doublons dans un même groupe ne comptent pas.`,
+        brief: [
+            `Retourne les éléments présents dans <b>toutes</b> les listes.`,
+            `Ordre croissant, <b>sans doublons</b>.`,
+            `Exemple : <code>list_intersection_finder([[1,2,2,3],[2,3,4],[0,2,3,3]])</code> → <code>[2, 3]</code>`,
+        ],
+        signature: `def list_intersection_finder(lists: list[list[int]]) -> list[int]:`,
+        solution: `def list_intersection_finder(lists: list[list[int]]) -> list[int]:
+    if not lists:
+        return []
+
+    return sorted(set(lists[0]).intersection(*lists))
+
+
+print(list_intersection_finder([[1, 2, 2, 3], [2, 3, 4], [0, 2, 3, 3]]))
+# output: [2, 3]`,
+        note: `<b>3 cadeaux gratuits :</b> <code>set()</code> supprime les doublons, <code>.intersection(*lists)</code> croise avec toutes les listes en une fois (l'étoile <code>*</code> les déballe en arguments), et <code>sorted()</code> trie + reconvertit en liste.`,
+        search: "list_intersection_finder intersection set ensembles attempt 1",
+    },
+    {
+        view: "official", section: "Sujets tombés à l'exam", num: "04",
+        heading: `<span class="file">merge_sorted_list.py</span>`,
+        tag: "flatten + sorted",
+        analogy: `🗂️ Plusieurs piles de cartes déjà triées : le plus simple est de tout reposer sur la table en un seul tas, puis de re-trier une bonne fois pour toutes.`,
+        brief: [
+            `Fusionne toutes les sous-listes (déjà triées) en une seule liste triée croissante.`,
+            `Garde les doublons ; ignore les sous-listes vides ; liste vide → <code>[]</code>.`,
+            `Exemple : <code>merge_sorted_list([[1,4,5],[1,3,4],[2,6]])</code> → <code>[1, 1, 2, 3, 4, 4, 5, 6]</code>`,
+        ],
+        signature: `def merge_sorted_list(lists: list[list[int]]) -> list[int]:`,
+        solution: `def merge_sorted_lists(lists: list[list[int]]) -> list[int]:
+    if not lists:
+        return []
+
+    # merged_list = []
+
+    # for lst in lists:
+    #     merged_list.extend(lst)
+
+    merged_list = [item for sublist in lists for item in sublist]
+    return sorted(merged_list)
+
+
+print(merge_sorted_lists([[1, 4, 5], [1, 3, 4], [2, 6]]))
+# output: [1, 1, 2, 3, 4, 4, 5, 6]`,
+        note: `<b>Pas besoin de fusion "intelligente" :</b> puisque <code>sorted()</code> trie déjà très bien, aplatir toutes les sous-listes en une seule (compréhension imbriquée) puis trier une fois suffit — inutile de comparer les têtes de listes une par une.`,
+        search: "merge_sorted_list fusion flatten sorted",
+    },
+    {
+        view: "official", section: "Sujets tombés à l'exam", num: "05",
+        heading: `<span class="file">palindrome_partitioner.py</span>`,
+        tag: "DP palindrome",
+        analogy: `✂️ Découper un mot en morceaux tous lisibles à l'endroit comme à l'envers — en cherchant le minimum de coups de ciseaux.`,
+        brief: [
+            `Trouve le nombre minimal de coupes pour que chaque morceau de <code>s</code> soit un palindrome.`,
+            `Chaîne vide, longueur 1, ou déjà palindrome → <code>0</code> coupe.`,
+            `Exemple : <code>palindrome_partitioner("aab")</code> → <code>1</code> (<code>"aa"</code> + <code>"b"</code>)`,
+        ],
+        signature: `def palindrome_partitioner(s: str) -> int:`,
+        solution: `def palindrome_partitioner(string: str) -> int:
+    def is_palindrome(sub: str) -> bool:
+        return sub == sub[::-1]
+
+    length = len(string)
+    cuts = [0] * length
+
+    for end in range(length):
+        min_cut = end
+        for start in range(end + 1):
+            if is_palindrome(string[start:end + 1]):
+                min_cut = 0 if start == 0 else min(min_cut, cuts[start - 1] + 1)
+        cuts[end] = min_cut
+
+    return cuts[length - 1] if length else 0
+
+
+print(palindrome_partitioner("aaabc"))  # output: 1`,
+        note: `<b>Le duo gagnant :</b> un helper <code>is_palindrome</code> (<code>sub == sub[::-1]</code>) + la table <code>cuts[i]</code> qui garde le minimum de coupes jusqu'à la position <code>i</code> — programmation dynamique lisible.`,
+        search: "palindrome_partitioner palindrome coupes dp programmation dynamique",
+    },
+    {
+        view: "official", section: "Sujets tombés à l'exam", num: "06",
+        heading: `<span class="file">sliding_window_maximum.py</span>`,
+        badge: "Attempt 2", tag: "list comprehension",
+        analogy: `🚂 La fenêtre d'un train le long d'un quai : tu vois <code>k</code> personnes, tu notes la plus grande, puis le train avance d'un cran.`,
+        brief: [
+            `Fais glisser une fenêtre de taille <code>k</code> ; note le <b>maximum</b> de chaque position.`,
+            `Cas limites : liste vide, <code>k &lt;= 0</code>, <code>k &gt; len(nums)</code> → retourne <code>[]</code>.`,
+            `Exemple : <code>sliding_window_maximum([1,3,-1,-3,5,3,6,7], 3)</code> → <code>[3, 3, 5, 5, 6, 7]</code>`,
+        ],
+        signature: `def sliding_window_maximum(nums: list[int], k: int) -> list[int]:`,
+        solution: `def sliding_window_maximum(nums: list[int], k: int) -> list[int]:
+    if not nums or k <= 0 or k > len(nums):
+        return []
+
+    result = []
+
+    for i in range(len(nums) - k + 1):
+        result += [max(nums[i:i+k])]
+
+    return result
+    # return [max(nums[i:i+k]) for i in range(len(nums) - k + 1)]
+
+
+print(sliding_window_maximum([1, 3, -1, -3, 5, 3, 6, 7], 3))
+# output: [3, 3, 5, 5, 6, 7]`,
+        note: `<b>Le compteur clé :</b> <code>len(nums) - k + 1</code> = le nombre de fenêtres. Avec 8 cases et <code>k=3</code>, la fenêtre démarre en 0…5 → <code>8-3+1=6</code>. <b>La compréhension</b> remplace la boucle <code>for</code> + <code>append</code> en une ligne.`,
+        search: "sliding_window_maximum window fenetre max comprehension attempt 2",
+    },
+    /* ============ ENTRAÎNEMENT ============ */
+    {
+        view: "training", section: "Fonctions — slicing & matrices", num: "01",
+        heading: `<span class="file">rotate_list.py</span>`,
+        tag: "slicing + modulo",
+        analogy: `🎡 Un manège : les chevaux qui sortent à droite reviennent par la gauche. Rien ne se perd, tout tourne.`,
+        brief: [
+            `Décale la liste de <code>k</code> positions vers la <b>droite</b>.`,
+            `Gère <code>k &gt; len(nums)</code> (astuce : <code>k % len(nums)</code>) et la liste vide.`,
+            `Exemple : <code>rotate_list([1,2,3,4,5], 2)</code> → <code>[4, 5, 1, 2, 3]</code>`,
+        ],
+        signature: `def rotate_list(nums: list[int], k: int) -> list[int]:`,
+        solution: `def rotate_list(nums, k):
+    if not nums:
+        return []
+    k = k % len(nums)              # k=7, 5 éléments → k=2
+    return nums[-k:] + nums[:-k]     # la fin + le début, recollés`,
+        note: `<b>Le slicing fait tout :</b> <code>nums[-k:]</code> prend les <code>k</code> derniers (ceux qui repassent devant), <code>nums[:-k]</code> prend le reste. Le <code>%</code> évite le crash quand <code>k</code> dépasse la taille.`,
+        search: "rotate_list rotation slicing modulo manege",
+    },
+    {
+        view: "training", section: "Fonctions — slicing & matrices", num: "02",
+        heading: `<span class="file">column_sums.py</span>`,
+        tag: "zip + sum",
+        analogy: `📊 Un tableur : tu additionnes chaque <b>colonne</b> de haut en bas.`,
+        brief: [
+            `Retourne la somme de chaque colonne.`,
+            `Retourne <code>[]</code> si la matrice est vide.`,
+            `Exemple : <code>column_sums([[1,2,3],[4,5,6]])</code> → <code>[5, 7, 9]</code>`,
+        ],
+        signature: `def column_sums(matrix: list[list[int]]) -> list[int]:`,
+        solution: `def column_sums(matrix):
+    if not matrix:
+        return []
+    # zip(*matrix) fait PIVOTER la matrice : les colonnes deviennent des lignes
+    return [sum(col) for col in zip(*matrix)]`,
+        note: `<b>L'astuce :</b> <code>zip(*matrix)</code> transpose la matrice. <code>[[1,2,3],[4,5,6]]</code> devient <code>(1,4), (2,5), (3,6)</code> — chaque colonne devient un groupe passé à <code>sum()</code>. Ça remplace la double boucle imbriquée.`,
+        search: "column_sums colonnes matrice zip sum tableur",
+    },
+    {
+        view: "training", section: "Méthodes intégrées — str & dict", num: "03",
+        heading: `<span class="file">caesar_cipher.py</span>`,
+        tag: "ord() / chr()",
+        analogy: `🔐 Une roue de décodeur : chaque lettre avance de <code>shift</code> crans, et après <code>z</code> on revient à <code>a</code>.`,
+        brief: [
+            `Décale chaque lettre de <code>shift</code> ; les autres caractères restent inchangés.`,
+            `Le retour à <code>a</code> après <code>z</code> doit fonctionner (idem majuscules).`,
+            `Exemple : <code>caesar_cipher("abc", 1)</code> → <code>"bcd"</code> · <code>caesar_cipher("xyz", 3)</code> → <code>"abc"</code>`,
+        ],
+        signature: `def caesar_cipher(text: str, shift: int) -> str:`,
+        solution: `def caesar_cipher(text, shift):
+    out = ""
+    for ch in text:
+        if ch.isalpha():
+            base = ord("A") if ch.isupper() else ord("a")
+            out += chr((ord(ch) - base + shift) % 26 + base)
+        else:
+            out += ch
+    return out`,
+        note: `<b>Ici le <code>for</code> reste le plus court proprement</b> (la logique majuscule/minuscule casse un one-liner). <code>ord("a")</code> → 97, <code>chr(97)</code> → <code>"a"</code>. On ramène en 0-25 (<code>- base</code>), on décale, <code>% 26</code> pour boucler, puis on remet la base.`,
+        search: "caesar_cipher chiffrement ord chr decalage lettres",
+    },
+    {
+        view: "training", section: "Méthodes intégrées — str & dict", num: "04",
+        heading: `<span class="file">char_frequency_sorter.py</span>`,
+        tag: "Counter + sorted(key)",
+        analogy: `🏆 Un classement : du caractère le plus fréquent au moins fréquent. En cas d'égalité, l'ordre alphabétique départage.`,
+        brief: [
+            `Compte chaque caractère, puis trie par <b>fréquence décroissante</b>.`,
+            `En cas d'égalité : <b>ordre alphabétique</b> croissant.`,
+            `Exemple : <code>char_frequency_sorter("aabbbc")</code> → <code>[('b', 3), ('a', 2), ('c', 1)]</code>`,
+        ],
+        signature: `def char_frequency_sorter(text: str) -> list[tuple[str, int]]:`,
+        solution: `from collections import Counter
+
+def char_frequency_sorter(text):
+    counts = Counter(text)          # compte TOUT en une ligne
+    # tri (-fréquence, caractère) : gros nombres d'abord, puis alphabétique
+    return sorted(counts.items(), key=lambda item: (-item[1], item[0]))`,
+        note: `<b><code>Counter</code></b> remplace toute la boucle de comptage. <b>Le tri double critère :</b> la <code>key</code> renvoie <code>(-item[1], item[0])</code> — le <code>-</code> rend la fréquence décroissante, et à égalité le caractère trie en alphabétique croissant.`,
+        search: "char_frequency_sorter frequence counter tri sorted key classement",
+    },
+    {
+        view: "training", section: "Créer tes propres classes", num: "05",
+        heading: `Classe <span class="file">Stack</span> (pile)`,
+        tag: "class + méthodes",
+        analogy: `🥞 Une pile d'assiettes : on ajoute et on retire <b>toujours par le haut</b>. Dernière posée = première reprise (LIFO).`,
+        brief: [
+            `<code>push</code> ajoute au sommet, <code>pop</code> retire et renvoie le sommet.`,
+            `<code>peek</code> regarde le sommet sans le retirer.`,
+            `<code>pop</code> et <code>peek</code> sur une pile vide → renvoient <code>None</code>.`,
+        ],
+        signature: `class Stack:
+    def __init__(self) -> None:
+    def push(self, value: int) -> None:   # ajoute au sommet
+    def pop(self) -> int:                # retire & renvoie le sommet
+    def peek(self) -> int:               # regarde sans retirer
+    def is_empty(self) -> bool:`,
+        solution: `class Stack:
+    def __init__(self):
+        self.items = []
+    def push(self, value):
+        self.items.append(value)
+    def pop(self):
+        return self.items.pop() if self.items else None
+    def peek(self):
+        return self.items[-1] if self.items else None
+    def is_empty(self):
+        return not self.items`,
+        note: `<b><code>self</code> = le « moi » de l'objet.</b> <code>self.items</code> appartient à cette pile précise ; deux <code>Stack()</code> ont chacune leur liste. <code>... if self.items else None</code> gère la pile vide en une ligne.`,
+        search: "stack pile push pop peek lifo classe methodes assiettes",
+    },
+    {
+        view: "training", section: "Créer tes propres classes", num: "06",
+        heading: `Classe <span class="file">Grades</span> (bulletin)`,
+        tag: "class + sum / max",
+        analogy: `🎓 Un carnet de notes : tu stockes les notes, puis tu calcules moyenne et meilleure note.`,
+        brief: [
+            `<code>add</code> ajoute une note à la collection interne.`,
+            `<code>average</code> renvoie la moyenne, ou <code>0.0</code> si vide.`,
+            `<code>highest</code> renvoie la meilleure note, ou <code>None</code> si vide.`,
+        ],
+        signature: `class Grades:
+    def __init__(self) -> None:
+    def add(self, note: int) -> None:   # ajoute une note
+    def average(self) -> float:         # moyenne (0.0 si vide)
+    def highest(self) -> int:           # meilleure note (None si vide)`,
+        solution: `class Grades:
+    def __init__(self):
+        self.notes = []
+    def add(self, note):
+        self.notes.append(note)
+    def average(self):
+        return sum(self.notes) / len(self.notes) if self.notes else 0.0
+    def highest(self):
+        return max(self.notes) if self.notes else None`,
+        note: `<b><code>sum()</code> et <code>max()</code></b> font le travail des boucles manuelles. Le test <code>if self.notes else …</code> gère le carnet vide (évite la division par zéro et le <code>max()</code> sur liste vide qui planterait).`,
+        search: "grades bulletin notes average moyenne highest max sum classe",
+    },
+];
+const exId = (ex) => `${ex.view}-${ex.num}`;
+/* ---- Coloration syntaxique Python ------------------------------------- */
+const KW = ["def", "class", "if", "elif", "else", "return", "for", "while", "in", "not", "or", "and", "None", "True", "False", "from", "import", "lambda"];
+const FN = ["sorted", "set", "len", "max", "min", "sum", "zip", "range", "ord", "chr", "append", "pop", "items", "isalpha", "isupper", "Counter", "intersection", "get", "any", "join", "print", "list", "tuple", "dict", "float", "bool", "str", "int"];
+const S0 = "\uE000", S1 = "\uE001", K0 = "\uE100", K1 = "\uE101", F0 = "\uE200", F1 = "\uE201";
+function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function highlightLine(line) {
+    let code = line, comment = "";
+    const h = line.indexOf("#");
+    if (h >= 0) {
+        code = line.slice(0, h);
+        comment = line.slice(h);
+    }
+    let s = esc(code);
+    const strings = [];
+    s = s.replace(/"[^"]*"|'[^']*'/g, (m) => { strings.push(m); return S0 + (strings.length - 1) + S1; });
+    s = s.replace(new RegExp("\\b(" + KW.join("|") + ")\\b", "g"), (m) => K0 + m + K1);
+    s = s.replace(new RegExp("\\b(" + FN.join("|") + ")\\b", "g"), (m) => F0 + m + F1);
+    s = s.replace(new RegExp(S0 + "(\\d+)" + S1, "g"), (_m, i) => `<span class="s">${strings[+i]}</span>`);
+    s = s.split(K0).join(`<span class="k">`).split(K1).join("</span>");
+    s = s.split(F0).join(`<span class="f">`).split(F1).join("</span>");
+    if (comment)
+        s += `<span class="c">${esc(comment)}</span>`;
+    return s;
+}
+function highlight(code) {
+    return code.split("\n").map(highlightLine).join("\n");
+}
+const STORE_KEY = "rank04-progress-v1";
+function loadProgress() {
+    try {
+        return JSON.parse(localStorage.getItem(STORE_KEY) || "{}");
+    }
+    catch {
+        return {};
+    } // ex: aperçu sandboxé → on retombe sur une session en mémoire
+}
+function saveProgress() {
+    try {
+        localStorage.setItem(STORE_KEY, JSON.stringify(progress));
+    }
+    catch { /* pas de persistance ici */ }
+}
+let progress = loadProgress();
+function statusMeta(st) {
+    if (st === "success")
+        return { cls: "ok", txt: "✓ réussi" };
+    if (st === "review")
+        return { cls: "warn", txt: "↻ à revoir" };
+    if (st === "seen")
+        return { cls: "seen", txt: "vu" };
+    return null;
+}
+function statusHTML(id) {
+    const m = statusMeta(progress[id]);
+    return m
+        ? `<span class="status ${m.cls}" data-status-for="${id}">${m.txt}</span>`
+        : `<span class="status" data-status-for="${id}" hidden></span>`;
+}
+function refreshStatus(id) {
+    const el = grid.querySelector(`.status[data-status-for="${id}"]`);
+    if (!el)
+        return;
+    const m = statusMeta(progress[id]);
+    el.className = "status" + (m ? " " + m.cls : "");
+    el.textContent = m ? m.txt : "";
+    if (m)
+        el.removeAttribute("hidden");
+    else
+        el.setAttribute("hidden", "");
+}
+function setStatus(id, st) {
+    // on ne "rétrograde" jamais un exercice déjà réussi vers "vu"
+    if (st === "seen" && progress[id])
+        return;
+    progress[id] = st;
+    saveProgress();
+    refreshStatus(id);
+    refreshStats();
+}
+function refreshStats() {
+    const list = EXERCISES.filter((e) => e.view === view);
+    let s = 0, r = 0;
+    for (const e of list) {
+        const st = progress[exId(e)];
+        if (st === "success")
+            s++;
+        else if (st === "review")
+            r++;
+    }
+    statSuccess.textContent = String(s);
+    statReview.textContent = String(r);
+    barEl.style.width = (list.length ? (s / list.length) * 100 : 0) + "%";
+}
+/* ---- Références DOM ---------------------------------------------------- */
+const grid = document.getElementById("grid");
+const searchInput = document.getElementById("search");
+const statSuccess = document.getElementById("stat-success");
+const statReview = document.getElementById("stat-review");
+const barEl = document.getElementById("progress-bar");
+const emptyEl = document.getElementById("empty");
+const heroKicker = document.getElementById("hero-kicker");
+const heroH1 = document.getElementById("hero-h1");
+const heroSub = document.getElementById("hero-sub");
+const footerEl = document.getElementById("footer");
+const segButtons = Array.from(document.querySelectorAll(".seg button"));
+const quizToggle = document.getElementById("quiz-toggle");
+const resetBtn = document.getElementById("reset-progress");
+const browseEl = document.getElementById("browse");
+const quizEl = document.getElementById("quiz");
+const tabsEl = document.getElementById("rank-tabs");
+const overlayEl = document.getElementById("overlay");
+const modalEl = document.getElementById("modal");
+const RANK_TABS = [
+    "C - Programming Fundamentals",
+    "Basic Python Algorithms",
+    "Medium Python Algorithms",
+    "Challenging Python Algorithms",
+    "In-depth Python Algorithms",
+];
+const ACTIVE_TAB = 2; // Medium — seul onglet rempli pour l'instant
+function renderTabs() {
+    if (view !== "official") {
+        tabsEl.innerHTML = "";
+        return;
+    }
+    tabsEl.innerHTML = RANK_TABS.map((name, i) => `<button type="button" ${i === ACTIVE_TAB ? 'class="active"' : "disabled title=\"Bientôt : ajoute tes sujets !\""}>${name}</button>`).join("");
+}
+function openModal(ex) {
+    setStatus(exId(ex), "seen");
+    modalEl.innerHTML = `<button class="modal-close" type="button" aria-label="Fermer">✕</button>
+    <div class="head"><span class="num">${ex.num}</span><h2 class="title">${ex.heading}</h2><span class="tag">${ex.tag}</span></div>
+    <div class="code-wrap"><button class="copy-btn" type="button">Copier</button><pre>${highlight(ex.solution)}</pre></div>
+    <p class="sol-note">${ex.note}</p>`;
+    overlayEl.hidden = false;
+    modalEl.querySelector(".modal-close").focus();
+}
+function closeModal() { overlayEl.hidden = true; }
+let view = "official";
+/* ---- Rendu (mode navigation) ------------------------------------------ */
+function cardHTML(ex) {
+    const id = exId(ex);
+    const badge = ex.badge ? `<span class="badge-real">${ex.badge}</span>` : "";
+    const bullets = ex.brief.map((b) => `<li>${b}</li>`).join("");
+    return `<article class="card" data-id="${id}" data-search="${ex.search}" tabindex="0" role="button" aria-haspopup="dialog">
+    <div class="head">
+      <span class="num">${ex.num}</span>
+      <h2 class="title">${ex.heading}</h2>
+      ${badge}
+      <span class="tag">${ex.tag}</span>
+      ${statusHTML(id)}
+    </div>
+    <p class="analogy">${ex.analogy}</p>
+    <pre class="proto">${highlight(ex.signature)}</pre>
+    <ul class="consigne">${bullets}</ul>
+    <div class="hint-open">▶ Clique pour voir la solution</div>
+  </article>`;
+}
+function applySearch() {
+    const q = searchInput.value.toLowerCase().trim();
+    const cards = Array.from(grid.querySelectorAll(".card"));
+    let visible = 0;
+    cards.forEach((c) => {
+        const match = (c.dataset.search || "").includes(q);
+        c.style.display = match ? "" : "none";
+        if (match)
+            visible++;
+    });
+    const headers = Array.from(grid.querySelectorAll(".section-title"));
+    headers.forEach((hdr) => {
+        let el = hdr.nextElementSibling;
+        let any = false;
+        while (el && !el.classList.contains("section-title")) {
+            if (el.classList.contains("card") && el.style.display !== "none")
+                any = true;
+            el = el.nextElementSibling;
+        }
+        hdr.style.display = q && !any ? "none" : "";
+    });
+    emptyEl.classList.toggle("show", visible === 0);
+}
+function render() {
+    const list = EXERCISES.filter((e) => e.view === view);
+    const sections = [];
+    const seen = new Set();
+    for (const e of list)
+        if (!seen.has(e.section)) {
+            seen.add(e.section);
+            sections.push(e.section);
+        }
+    let html = "";
+    for (const sec of sections) {
+        const items = list.filter((e) => e.section === sec);
+        html += `<div class="section-title"><span class="dot"></span>${sec}<span class="count">${items.length} exo${items.length > 1 ? "s" : ""}</span></div>`;
+        html += items.map(cardHTML).join("");
+    }
+    grid.innerHTML = html;
+    renderTabs();
+    heroKicker.textContent = HERO[view].kicker;
+    heroH1.textContent = HERO[view].h1;
+    heroSub.innerHTML = HERO[view].sub;
+    footerEl.innerHTML = `${list.length} exercices · <span class="v">versions courtes</span> — bon courage pour l'exam 🍜`;
+    applySearch();
+    refreshStats();
+}
+/* ---- Interactions (mode navigation) ----------------------------------- */
+segButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+        const v = btn.dataset.view;
+        if (v === view)
+            return;
+        view = v;
+        document.body.classList.toggle("view-official", view === "official");
+        document.body.classList.toggle("view-training", view === "training");
+        segButtons.forEach((b) => b.classList.toggle("active", b.dataset.view === view));
+        searchInput.value = "";
+        render();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+});
+searchInput.addEventListener("input", applySearch);
+resetBtn.addEventListener("click", () => {
+    if (!confirm("Réinitialiser toute ta progression (réussis, à revoir, vus) ?"))
+        return;
+    progress = {};
+    saveProgress();
+    render();
+});
+grid.addEventListener("click", (e) => {
+    const card = e.target.closest(".card");
+    if (!card || !card.dataset.id)
+        return;
+    const ex = EXERCISES.find((x) => exId(x) === card.dataset.id);
+    if (ex)
+        openModal(ex);
+});
+grid.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" && e.key !== " ")
+        return;
+    const card = e.target.closest(".card");
+    if (!card || !card.dataset.id)
+        return;
+    e.preventDefault();
+    const ex = EXERCISES.find((x) => exId(x) === card.dataset.id);
+    if (ex)
+        openModal(ex);
+});
+overlayEl.addEventListener("click", (e) => {
+    const t = e.target;
+    if (t === overlayEl || t.classList.contains("modal-close")) {
+        closeModal();
+        return;
+    }
+    if (t.classList.contains("copy-btn")) {
+        const pre = t.parentElement.querySelector("pre");
+        navigator.clipboard.writeText(pre.innerText).then(() => {
+            t.textContent = "✓ Copié";
+            t.classList.add("done");
+            setTimeout(() => { t.textContent = "Copier"; t.classList.remove("done"); }, 1500);
+        });
+    }
+});
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !overlayEl.hidden)
+    closeModal(); });
+let quiz = null;
+let lastConfig = { source: "official", order: "ordered", perMs: 300000 };
+function q(sel) { return quizEl.querySelector(sel); }
+function fmtClock(ms) {
+    const s = Math.max(0, Math.round(ms / 1000));
+    const m = Math.floor(s / 60);
+    return `${String(m).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+}
+function shuffle(a) {
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+function enterQuiz() {
+    document.body.classList.add("mode-quiz");
+    browseEl.hidden = true;
+    quizEl.hidden = false;
+    quizToggle.textContent = "✕ Quitter le quiz";
+    lastConfig.source = view;
+    renderSetup();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+}
+function exitQuiz() {
+    if (quiz && quiz.timerId)
+        clearInterval(quiz.timerId);
+    quiz = null;
+    document.body.classList.remove("mode-quiz");
+    quizEl.hidden = true;
+    browseEl.hidden = false;
+    quizToggle.textContent = "▶ Mode quiz";
+    render(); // reflète les nouveaux statuts sur les cartes
+}
+function renderSetup() {
+    const s = lastConfig.source, o = lastConfig.order, t = String(lastConfig.perMs / 1000);
+    const on = (a, b) => (a === b ? " active" : "");
+    quizEl.innerHTML = `<div class="quiz-setup">
+    <h2>Mode quiz</h2>
+    <p class="quiz-lead">Conditions d'exam : un exercice à la fois, solution cachée, minuteur. À la fin, ton score — et les exercices « à revoir » sont mémorisés.</p>
+    <div class="q-field"><label>Source</label><div class="segroup" data-group="source">
+      <button type="button" data-val="official" class="${on(s, "official").trim()}">Officiels</button>
+      <button type="button" data-val="training" class="${on(s, "training").trim()}">Entraînement</button>
+      <button type="button" data-val="all" class="${on(s, "all").trim()}">Tout</button></div></div>
+    <div class="q-field"><label>Ordre</label><div class="segroup" data-group="order">
+      <button type="button" data-val="ordered" class="${on(o, "ordered").trim()}">Dans l'ordre</button>
+      <button type="button" data-val="shuffle" class="${on(o, "shuffle").trim()}">Aléatoire</button></div></div>
+    <div class="q-field"><label>Temps / exercice</label><div class="segroup" data-group="time">
+      <button type="button" data-val="0" class="${on(t, "0").trim()}">Aucun</button>
+      <button type="button" data-val="180" class="${on(t, "180").trim()}">3 min</button>
+      <button type="button" data-val="300" class="${on(t, "300").trim()}">5 min</button>
+      <button type="button" data-val="600" class="${on(t, "600").trim()}">10 min</button></div></div>
+    <button type="button" class="q-start" id="q-start">Démarrer le quiz →</button>
+  </div>`;
+    quizEl.querySelectorAll(".segroup").forEach((group) => {
+        group.querySelectorAll("button").forEach((b) => {
+            b.addEventListener("click", () => {
+                group.querySelectorAll("button").forEach((x) => x.classList.remove("active"));
+                b.classList.add("active");
+            });
+        });
+    });
+    q("#q-start").addEventListener("click", () => {
+        const val = (grp) => {
+            const b = quizEl.querySelector(`[data-group="${grp}"] button.active`);
+            return (b === null || b === void 0 ? void 0 : b.dataset.val) || "";
+        };
+        lastConfig = {
+            source: (val("source") || "official"),
+            order: (val("order") || "ordered"),
+            perMs: (parseInt(val("time"), 10) || 0) * 1000,
+        };
+        startQuiz(lastConfig);
+    });
+}
+function startQuiz(cfg) {
+    let pool = cfg.source === "all" ? EXERCISES.slice() : EXERCISES.filter((e) => e.view === cfg.source);
+    if (cfg.only)
+        pool = pool.filter((e) => cfg.only.includes(exId(e)));
+    if (cfg.order === "shuffle")
+        shuffle(pool);
+    if (pool.length === 0) {
+        renderSetup();
+        return;
+    }
+    quiz = { queue: pool, index: 0, revealed: false, results: {}, perMs: cfg.perMs, startedAt: 0, elapsedTotal: 0, timerId: null };
+    renderQuestion();
+}
+function startTimer() {
+    if (!quiz)
+        return;
+    quiz.startedAt = Date.now();
+    if (quiz.timerId) {
+        clearInterval(quiz.timerId);
+        quiz.timerId = null;
+    }
+    const el = q("#q-timer");
+    if (quiz.perMs <= 0) {
+        if (el)
+            el.textContent = "∞";
+        return;
+    }
+    const tick = () => {
+        if (!quiz)
+            return;
+        const remaining = quiz.perMs - (Date.now() - quiz.startedAt);
+        const e = q("#q-timer");
+        if (e) {
+            e.textContent = fmtClock(remaining);
+            e.classList.toggle("danger", remaining <= 30000 && remaining > 0);
+            e.classList.toggle("over", remaining <= 0);
+        }
+    };
+    tick();
+    quiz.timerId = window.setInterval(tick, 250);
+}
+function stopTimer() {
+    if (!quiz)
+        return;
+    if (quiz.timerId) {
+        clearInterval(quiz.timerId);
+        quiz.timerId = null;
+    }
+    quiz.elapsedTotal += Date.now() - quiz.startedAt;
+}
+function renderQuestion() {
+    if (!quiz)
+        return;
+    if (quiz.index >= quiz.queue.length) {
+        renderResults();
+        return;
+    }
+    const ex = quiz.queue[quiz.index];
+    const badge = ex.badge ? `<span class="badge-real">${ex.badge}</span>` : "";
+    const bullets = ex.brief.map((b) => `<li>${b}</li>`).join("");
+    const pct = (quiz.index / quiz.queue.length) * 100;
+    quiz.revealed = false;
+    quizEl.innerHTML = `<div class="quiz-run">
+    <div class="q-top">
+      <span class="q-count">Exercice ${quiz.index + 1} / ${quiz.queue.length}</span>
+      <span class="q-timer" id="q-timer">—</span>
+    </div>
+    <div class="q-bar"><i style="width:${pct}%"></i></div>
+    <article class="card q-card">
+      <div class="head">
+        <span class="num">${ex.num}</span>
+        <h2 class="title">${ex.heading}</h2>
+        ${badge}<span class="tag">${ex.tag}</span>
+      </div>
+      <p class="analogy">${ex.analogy}</p>
+      <pre class="proto">${highlight(ex.signature)}</pre>
+      <ul class="consigne">${bullets}</ul>
+      <div class="q-solution" id="q-solution" hidden>
+        <div class="code-wrap"><button class="copy-btn" type="button">Copier</button><pre>${highlight(ex.solution)}</pre></div>
+        <p class="sol-note">${ex.note}</p>
+      </div>
+      <div class="q-actions" id="q-actions">
+        <button type="button" class="q-primary" id="q-reveal">Révéler la solution</button>
+        <button type="button" class="ghost" id="q-skip">Passer</button>
+      </div>
+      <div class="q-verdict" id="q-verdict" hidden>
+        <span class="q-verdict-label">Comment t'en es-tu sorti ?</span>
+        <button type="button" class="ok" id="q-success">✓ Réussi</button>
+        <button type="button" class="warn" id="q-review">✗ À revoir</button>
+      </div>
+    </article>
+  </div>`;
+    q("#q-reveal").addEventListener("click", reveal);
+    q("#q-skip").addEventListener("click", () => nextWith("skip"));
+    q("#q-success").addEventListener("click", () => nextWith("success"));
+    q("#q-review").addEventListener("click", () => nextWith("review"));
+    startTimer();
+}
+function reveal() {
+    if (!quiz || quiz.revealed)
+        return;
+    quiz.revealed = true;
+    stopTimer();
+    const sol = q("#q-solution"), act = q("#q-actions"), ver = q("#q-verdict");
+    if (sol)
+        sol.hidden = false;
+    if (act)
+        act.hidden = true;
+    if (ver)
+        ver.hidden = false;
+}
+function nextWith(v) {
+    if (!quiz)
+        return;
+    if (!quiz.revealed)
+        stopTimer(); // "Passer" avant d'avoir révélé
+    const ex = quiz.queue[quiz.index];
+    quiz.results[exId(ex)] = v;
+    if (v === "success" || v === "review")
+        setStatus(exId(ex), v);
+    quiz.index++;
+    renderQuestion();
+}
+function renderResults() {
+    if (!quiz)
+        return;
+    const total = quiz.queue.length;
+    let success = 0;
+    const toReview = [];
+    for (const ex of quiz.queue) {
+        const v = quiz.results[exId(ex)];
+        if (v === "success")
+            success++;
+        else
+            toReview.push(ex);
+    }
+    const pct = Math.round((success / total) * 100);
+    const C = 2 * Math.PI * 52;
+    const offset = C * (1 - pct / 100);
+    const reviewHTML = toReview.length
+        ? `<div class="review-list"><h3>À revoir (${toReview.length})</h3><ul>${toReview.map((e) => `<li><code>${e.heading.replace(/<[^>]+>/g, "")}</code></li>`).join("")}</ul></div>`
+        : `<p class="results-time" style="color:var(--ok)">Sans faute — impeccable ! 🎉</p>`;
+    const redoBtn = toReview.length
+        ? `<button type="button" class="ghost" id="q-redo">Rejouer les ${toReview.length} ratés</button>`
+        : "";
+    quizEl.innerHTML = `<div class="quiz-results">
+    <svg class="ring" viewBox="0 0 120 120">
+      <circle class="ring-bg" cx="60" cy="60" r="52"></circle>
+      <circle class="ring-fg" cx="60" cy="60" r="52" transform="rotate(-90 60 60)"
+        style="stroke-dasharray:${C.toFixed(1)};stroke-dashoffset:${offset.toFixed(1)}"></circle>
+      <text class="ring-text" x="60" y="69">${pct}%</text>
+    </svg>
+    <h2>${success} / ${total} réussis</h2>
+    <p class="results-time">Temps total : ${fmtClock(quiz.elapsedTotal)}</p>
+    ${reviewHTML}
+    <div class="q-actions">
+      <button type="button" class="q-primary" id="q-restart">Recommencer</button>
+      ${redoBtn}
+      <button type="button" class="ghost" id="q-quit">Retour aux exercices</button>
+    </div>
+  </div>`;
+    const reviewIds = toReview.map(exId);
+    q("#q-restart").addEventListener("click", () => startQuiz(lastConfig));
+    q("#q-quit").addEventListener("click", exitQuiz);
+    const redo = q("#q-redo");
+    if (redo)
+        redo.addEventListener("click", () => startQuiz({ ...lastConfig, order: "ordered", only: reviewIds }));
+    quiz = null; // le quiz est terminé ; les stats sont déjà sauvegardées
+}
+// copier depuis la solution révélée en quiz
+quizEl.addEventListener("click", (e) => {
+    const t = e.target;
+    if (!t.classList.contains("copy-btn"))
+        return;
+    const pre = t.parentElement.querySelector("pre");
+    navigator.clipboard.writeText(pre.innerText).then(() => {
+        t.textContent = "✓ Copié";
+        t.classList.add("done");
+        setTimeout(() => { t.textContent = "Copier"; t.classList.remove("done"); }, 1500);
+    });
+});
+// raccourcis clavier en quiz : Entrée/Espace = révéler, 1 = réussi, 2 = à revoir
+document.addEventListener("keydown", (e) => {
+    if (!document.body.classList.contains("mode-quiz") || !quiz)
+        return;
+    if (e.key === "Enter" || e.key === " ") {
+        if (!quiz.revealed && q("#q-reveal")) {
+            e.preventDefault();
+            reveal();
+        }
+    }
+    else if (quiz.revealed && e.key === "1") {
+        nextWith("success");
+    }
+    else if (quiz.revealed && e.key === "2") {
+        nextWith("review");
+    }
+});
+quizToggle.addEventListener("click", () => {
+    if (document.body.classList.contains("mode-quiz"))
+        exitQuiz();
+    else
+        enterQuiz();
+});
+/* ---- Démarrage --------------------------------------------------------- */
+document.body.classList.add("view-official");
+render();
+
+</script>
+</body>
+</html>
