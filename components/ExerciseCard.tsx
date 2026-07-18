@@ -26,7 +26,7 @@ export default function ExerciseCard({ ex, status, onOpen }: Props) {
         {meta && <span className={`status ${meta.cls}`}>{meta.txt}</span>}
       </div>
       <p className="analogy" dangerouslySetInnerHTML={{ __html: ex.analogy }} />
-      <pre className="proto" dangerouslySetInnerHTML={{ __html: highlight(ex.signature) }} />
+      <pre className="proto" dangerouslySetInnerHTML={{ __html: highlight(ex.signature, ex.lang) }} />
       <ul className="consigne">
         {ex.brief.map((b, i) => <li key={i} dangerouslySetInnerHTML={{ __html: b }} />)}
       </ul>

@@ -24,9 +24,9 @@ export default function Home() {
   const [authReason, setAuthReason] = useState<string | undefined>(undefined);
 
   const tabHasData = (i: number) => EXERCISES.some((e) => e.view === "official" && (e.tab ?? 2) === i);
-  const basicLevels = useMemo(
-    () => Array.from(new Set(EXERCISES.filter((e) => e.tab === 1).map((e) => e.level ?? 0))).sort(),
-    [],
+  const tabLevels = useMemo(
+    () => Array.from(new Set(EXERCISES.filter((e) => (e.tab ?? 2) === activeTab && e.level !== undefined).map((e) => e.level ?? 0))).sort((a, b) => a - b),
+    [activeTab],
   );
 
   /* liste visible (vue + tab + niveau + filtre) */
@@ -34,12 +34,12 @@ export default function Home() {
     let l = EXERCISES.filter((e) => e.view === view);
     if (view === "official") {
       l = l.filter((e) => (e.tab ?? 2) === activeTab);
-      if (activeTab === 1 && activeLevel > 0) l = l.filter((e) => e.level === activeLevel);
+      if (tabLevels.length > 0 && activeLevel > 0) l = l.filter((e) => e.level === activeLevel);
     }
     const q = search.toLowerCase().trim();
     if (q) l = l.filter((e) => e.search.includes(q));
     return l;
-  }, [view, activeTab, activeLevel, search]);
+  }, [view, activeTab, activeLevel, search, tabLevels.length]);
 
   const sections = useMemo(() => {
     const seen = new Set<string>();
@@ -51,10 +51,10 @@ export default function Home() {
     let l = EXERCISES.filter((e) => e.view === view);
     if (view === "official") {
       l = l.filter((e) => (e.tab ?? 2) === activeTab);
-      if (activeTab === 1 && activeLevel > 0) l = l.filter((e) => e.level === activeLevel);
+      if (tabLevels.length > 0 && activeLevel > 0) l = l.filter((e) => e.level === activeLevel);
     }
     return l;
-  }, [view, activeTab, activeLevel]);
+  }, [view, activeTab, activeLevel, tabLevels.length]);
   const successCount = scope.filter((e) => progress[exId(e)] === "success").length;
   const reviewCount = scope.filter((e) => progress[exId(e)] === "review").length;
 
@@ -105,10 +105,10 @@ export default function Home() {
                 onClick={() => { setActiveTab(i); setActiveLevel(0); }}
               >{name}</button>
             ))}
-            {activeTab === 1 && (
+            {tabLevels.length > 0 && (
               <div className="sub-tabs">
                 <button type="button" className={activeLevel === 0 ? "active" : ""} onClick={() => setActiveLevel(0)}>Tous</button>
-                {basicLevels.map((l) => (
+                {tabLevels.map((l) => (
                   <button key={l} type="button" className={activeLevel === l ? "active" : ""} onClick={() => setActiveLevel(l)}>Niveau {l}</button>
                 ))}
               </div>
@@ -137,8 +137,8 @@ export default function Home() {
       <ResetModal open={modal === "reset"} onClose={() => setModal("none")} onConfirm={reset} />
       <QuizModal
         open={modal === "quiz"} onClose={() => setModal("none")} setStatus={setStatus}
-        initialTab={view === "training" ? 99 : activeTab === 1 ? 1 : 2}
-        initialLevel={view === "official" && activeTab === 1 ? activeLevel : 0}
+        initialTab={view === "training" ? 99 : activeTab === 0 ? 0 : activeTab === 1 ? 1 : 2}
+        initialLevel={view === "official" && tabLevels.length > 0 ? activeLevel : 0}
       />
     </div>
   );

@@ -17,6 +17,7 @@ export interface Exercise {
   solution: string;
   note: string;
   search: string;
+  lang?: "c";   // coloration : Python par défaut
 }
 
 export interface CloudUser { uid: string; name: string; photo: string }

@@ -8,7 +8,7 @@ import { highlight } from "@/lib/highlight";
 import { grade, type GradeResult } from "@/lib/grademe";
 import { GRADEME } from "@/lib/grademe-data";
 
-type QuizTab = 1 | 2 | 99;
+type QuizTab = 0 | 1 | 2 | 99;
 type Phase = "setup" | "run" | "results";
 const THREE_HOURS = 3 * 60 * 60 * 1000;
 
@@ -78,8 +78,8 @@ export default function QuizModal({ open, onClose, setStatus, initialTab, initia
   const advancing = useRef(false);
 
   const levels = useMemo(
-    () => Array.from(new Set(EXERCISES.filter((e) => e.tab === 1).map((e) => e.level ?? 0))).sort(),
-    [],
+    () => Array.from(new Set(EXERCISES.filter((e) => e.tab === (tab === 0 ? 0 : 1)).map((e) => e.level ?? 0))).sort((a, b) => a - b),
+    [tab],
   );
 
   useEffect(() => { if (open) { setPhase("setup"); setTab(initialTab); setLevel(initialLevel); } }, [open, initialTab, initialLevel]);
@@ -169,11 +169,12 @@ export default function QuizModal({ open, onClose, setStatus, initialTab, initia
           <h2>Mode quiz</h2>
           <p className="dialog-text">Conditions d&apos;exam : un exercice à la fois, éditeur + grademe. En mode 3 h, une sélection aléatoire simule un vrai sujet.</p>
           <div className="q-field"><label>Tab</label><div className="segroup">
+            <button type="button" className={seg(tab === 0)} onClick={() => setTab(0)}>C Fundamentals</button>
             <button type="button" className={seg(tab === 1)} onClick={() => setTab(1)}>Basic Python</button>
             <button type="button" className={seg(tab === 2)} onClick={() => setTab(2)}>Medium Python</button>
             <button type="button" className={seg(tab === 99)} onClick={() => setTab(99)}>Entraînement</button>
           </div></div>
-          {tab === 1 && (
+          {(tab === 0 || tab === 1) && (
             <div className="q-field"><label>Niveau (sous-tab)</label><div className="segroup">
               <button type="button" className={seg(level === 0)} onClick={() => setLevel(0)}>Tous</button>
               {levels.map((l) => (
@@ -211,7 +212,7 @@ export default function QuizModal({ open, onClose, setStatus, initialTab, initia
             <span className="tag">{ex.tag}</span>
           </div>
           <p className="analogy" dangerouslySetInnerHTML={{ __html: ex.analogy }} />
-          <pre className="proto" dangerouslySetInnerHTML={{ __html: highlight(ex.signature) }} />
+          <pre className="proto" dangerouslySetInnerHTML={{ __html: highlight(ex.signature, ex.lang) }} />
           <ul className="consigne">{ex.brief.map((b, i) => <li key={i} dangerouslySetInnerHTML={{ __html: b }} />)}</ul>
           <label className="q-editor-label" htmlFor="q-editor">Ta solution :</label>
           <textarea
@@ -235,7 +236,7 @@ export default function QuizModal({ open, onClose, setStatus, initialTab, initia
                   onClick={() => navigator.clipboard.writeText(ex.solution).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500); })}>
                   {copied ? "✓ Copié" : "Copier"}
                 </button>
-                <pre dangerouslySetInnerHTML={{ __html: highlight(ex.solution) }} />
+                <pre dangerouslySetInnerHTML={{ __html: highlight(ex.solution, ex.lang) }} />
               </div>
               <p className="sol-note" dangerouslySetInnerHTML={{ __html: ex.note }} />
             </div>

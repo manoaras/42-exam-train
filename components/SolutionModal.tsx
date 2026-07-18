@@ -26,7 +26,7 @@ export default function SolutionModal({ ex, onClose }: Props) {
         <button className={`copy-btn${copied ? " done" : ""}`} type="button" onClick={copy}>
           {copied ? "✓ Copié" : "Copier"}
         </button>
-        <pre dangerouslySetInnerHTML={{ __html: highlight(ex.solution) }} />
+        <pre dangerouslySetInnerHTML={{ __html: highlight(ex.solution, ex.lang) }} />
       </div>
       <p className="sol-note" dangerouslySetInnerHTML={{ __html: ex.note }} />
     </Modal>

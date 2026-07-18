@@ -22,5 +22,35 @@ function highlightLine(line: string): string {
   return s;
 }
 
-export const highlight = (code: string): string =>
-  code.split("\n").map(highlightLine).join("\n");
+const CKW = ["int","char","void","unsigned","long","short","const","static","struct","typedef","sizeof","return","if","else","while","for","break","continue","NULL"];
+const CFN = ["write","malloc","free","printf","main","strlen","strcmp","atoi"];
+
+function highlightC(code: string): string {
+  let inBlock = false;
+  return code.split("\n").map((line) => {
+    if (inBlock) {
+      if (line.includes("*/")) inBlock = false;
+      return `<span class="c">${esc(line)}</span>`;
+    }
+    const t = line.trimStart();
+    if (t.startsWith("/*")) { if (!line.includes("*/")) inBlock = true; return `<span class="c">${esc(line)}</span>`; }
+    if (t.startsWith("//")) return `<span class="c">${esc(line)}</span>`;
+    if (t.startsWith("#")) return `<span class="k">${esc(line)}</span>`;
+    let code2 = line, comment = "";
+    const ci = line.indexOf("//");
+    if (ci >= 0) { code2 = line.slice(0, ci); comment = line.slice(ci); }
+    let s = esc(code2);
+    const strings: string[] = [];
+    s = s.replace(/"[^"]*"|'(?:\\.|[^'\\])'/g, (m) => { strings.push(m); return S0 + (strings.length - 1) + S1; });
+    s = s.replace(new RegExp("\\b(" + CKW.join("|") + ")\\b", "g"), (m) => K0 + m + K1);
+    s = s.replace(new RegExp("\\b(" + CFN.join("|") + ")\\b", "g"), (m) => F0 + m + F1);
+    s = s.replace(new RegExp(S0 + "(\\d+)" + S1, "g"), (_m, i: string) => `<span class="s">${strings[+i]}</span>`);
+    s = s.split(K0).join('<span class="k">').split(K1).join("</span>");
+    s = s.split(F0).join('<span class="f">').split(F1).join("</span>");
+    if (comment) s += `<span class="c">${esc(comment)}</span>`;
+    return s;
+  }).join("\n");
+}
+
+export const highlight = (code: string, lang?: "c"): string =>
+  lang === "c" ? highlightC(code) : code.split("\n").map(highlightLine).join("\n");
