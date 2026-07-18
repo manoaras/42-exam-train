@@ -1,0 +1,12 @@
+# Dépendances (le site charge Firebase via CDN — node_modules inutile)
+node_modules/
+
+# Fichiers générés par la compilation TypeScript
+app.js
+
+# Système / éditeurs
+.DS_Store
+__MACOSX/
+*.swp
+.vscode/
+.idea/

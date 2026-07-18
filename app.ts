@@ -1,87 +1,87 @@
 /* =========================================================================
-   Rank 04 · Exam Medium Python — Trainer (TypeScript source)
-   Un seul site, deux vues (Officiels / Entraînement) + un mode quiz.
-   Piloté par les données : pour ajouter un exercice, ajoute un objet à
-   EXERCISES — la grille, les sections, le filtre et le quiz s'adaptent seuls.
+    Rank 04 · Exam Medium Python — Trainer (TypeScript source)
+    Un seul site, deux vues (Officiels / Entraînement) + un mode quiz.
+    Piloté par les données : pour ajouter un exercice, ajoute un objet à
+    EXERCISES — la grille, les sections, le filtre et le quiz s'adaptent seuls.
    ========================================================================= */
 
 type View = "official" | "training";
 
 interface Exercise {
-  view: View;
-  tab?: number;    // onglet rank (page officiels) — 2 = Medium par défaut
-  level?: number;  // sous-niveau (tab Basic)
-  section: string;
-  num: string;
-  heading: string;
-  badge?: string;
-  tag: string;
-  analogy: string;
-  brief: string[];
-  signature: string;
-  solution: string;
-  note: string;
-  search: string;
+    view: View;
+    tab?: number;    // onglet rank (page officiels) — 2 = Medium par défaut
+    level?: number;  // sous-niveau (tab Basic)
+    section: string;
+    num: string;
+    heading: string;
+    badge?: string;
+    tag: string;
+    analogy: string;
+    brief: string[];
+    signature: string;
+    solution: string;
+    note: string;
+    search: string;
 }
 
 const HERO: Record<View, { kicker: string; h1: string; sub: string }> = {
-  official: { kicker: "", h1: "", sub: "" }, // rempli dynamiquement selon la tab
-  training: {
-    kicker: "Entraînement · Exam Medium Python",
-    h1: "Exercices d'entraînement",
-    sub: `Des exercices dans le <b>format de l'exam</b>, rangés par concept, pour muscler tes réflexes. Solutions masquées, en <b>version la plus courte</b>.`,
-  },
+    official: { kicker: "", h1: "", sub: "" }, // rempli dynamiquement selon la tab
+    training: {
+        kicker: "Entraînement · Exam Medium Python",
+        h1: "Exercices d'entraînement",
+        sub: `Des exercices dans le <b>format de l'exam</b>, rangés par concept, pour muscler tes réflexes. Solutions masquées, en <b>version la plus courte</b>.`,
+    },
 };
 
 /* ---- Données des exercices -------------------------------------------- */
 const EXERCISES: Exercise[] = [
-  /* ============ OFFICIELS ============ */
-  {
-    view: "official", tab: 2, section: "Sujets tombés à l'exam", num: "01",
-    heading: `<span class="file">is_rotation.py</span>`,
-    tag: "doubled list trick",
-    analogy: `🎡 Une roue qui tourne : colle-la deux fois bout à bout, et toute rotation devient une simple tranche continue dans cette roue doublée.`,
-    brief: [
-      `Détermine si <code>arr2</code> est une rotation de <code>arr1</code> (à gauche ou à droite).`,
-      `Longueurs différentes → <code>False</code>. Deux listes vides → <code>True</code>.`,
-      `Exemple : <code>is_rotation([1,2,3,4,5], [4,5,1,2,3])</code> → <code>True</code>`,
-    ],
-    signature: `def is_rotation(arr1: list, arr2: list) -> bool:`,
-    solution: `def is_rotation(arr1: list, arr2: list) -> bool:
-    if len(arr1) != len(arr2):
-        return False
+    /* ============ OFFICIELS ============ */
+    {
+        view: "official", tab: 2, section: "Sujets tombés à l'exam", num: "01",
+        heading: `<span class="file">is_rotation.py</span>`,
+        tag: "doubled list trick",
+        analogy: `🎡 Une roue qui tourne : colle-la deux fois bout à bout, et toute rotation devient une simple tranche continue dans cette roue doublée.`,
+        brief: [
+            `Détermine si <code>arr2</code> est une rotation de <code>arr1</code> (à gauche ou à droite).`,
+            `Longueurs différentes → <code>False</code>. Deux listes vides → <code>True</code>.`,
+            `Exemple : <code>is_rotation([1,2,3,4,5], [4,5,1,2,3])</code> → <code>True</code>`,
+        ],
+        signature: `def is_rotation(arr1: list, arr2: list) -> bool:`,
+        solution: `def is_rotation(arr1: list, arr2: list) -> bool:
+        if len(arr1) != len(arr2):
+            return False
 
-    double = arr1 + arr1
+        double = arr1 + arr1
 
-    return any(double[i:i+len(arr2)] == arr2 for i in range(len(arr1)))
+        return any(double[i:i+len(arr2)] == arr2 for i in range(len(arr1)))
 
 
-print(is_rotation([1, 2, 3, 4, 5], [4, 5, 1, 2, 3]))  # True
-print(is_rotation([1, 2, 3, 4, 5], [3, 4, 5, 1, 2]))  # True
-print(is_rotation([1, 2, 3, 4, 5], [2, 3, 4, 5, 6]))  # False
-print(is_rotation([1, 2, 3, 4, 5], [1, 2, 3, 4]))     # False`,
-    note: `<b>Le trick à connaître :</b> coller la liste à elle-même (<code>arr1 + arr1</code>) fait apparaître <b>toutes</b> les rotations possibles comme sous-tranches consécutives. Il suffit de vérifier si <code>arr2</code> en est une — même trick que pour la rotation de strings (<code>s2 in s1+s1</code>).`,
-    search: "is_rotation rotation liste doubled list trick",
-  },
-  {
-    view: "official", tab: 2, section: "Sujets tombés à l'exam", num: "02",
-    heading: `<span class="file">constellation_mapper.py</span>`,
-    tag: "grid + tuple unpack",
-    analogy: `🌌 Une carte du ciel : tu poses une grille vide de points, puis tu allumes une étoile à chaque coordonnée — en ignorant celles hors du cadre.`,
-    brief: [
-      `Construit une grille <code>size</code> × <code>size</code> de <code>"."</code>, avec un <code>"*"</code> à chaque coordonnée <code>(ligne, colonne)</code> fournie.`,
-      `Ignore les coordonnées hors-grille et les doublons.`,
-      `Exemple : <code>constellation_mapper([(0,0),(1,1),(2,2)], 3)</code> → <code>["*..", ".*.", "..*"]</code>`,
-    ],
-    signature: `def constellation_mapper(stars: list[tuple[int, int]], size: int) -> list[str]:`,
-    solution: `def constellation_mapper(stars: list[tuple[int, int]], size: int) -> list[str]:
-    grid = [['.'] * size for _ in range(size)]
+        print(is_rotation([1, 2, 3, 4, 5], [4, 5, 1, 2, 3]))  # True
+        print(is_rotation([1, 2, 3, 4, 5], [3, 4, 5, 1, 2]))  # True
+        print(is_rotation([1, 2, 3, 4, 5], [2, 3, 4, 5, 6]))  # False
+        print(is_rotation([1, 2, 3, 4, 5], [1, 2, 3, 4]))     # False`,
+        note: `<b>Le trick à connaître :</b> coller la liste à elle-même (<code>arr1 + arr1</code>) fait apparaître <b>toutes</b> les rotations possibles comme sous-tranches consécutives. Il suffit de vérifier si <code>arr2</code> en est une — même trick que pour la rotation de strings (<code>s2 in s1+s1</code>).`,
+        search: "is_rotation rotation liste doubled list trick",
+    },
+    {
+        view: "official", tab: 2, section: "Sujets tombés à l'exam", num: "02",
+        heading: `<span class="file">constellation_mapper.py</span>`,
+        tag: "grid + tuple unpack",
+        analogy: `🌌 Une carte du ciel : tu poses une grille vide de points, puis tu allumes une étoile à chaque coordonnée — en ignorant celles hors du cadre.`,
+        brief: [
+            `Construit une grille <code>size</code> × <code>size</code> de <code>"."</code>, avec un <code>"*"</code> à chaque coordonnée <code>(ligne, colonne)</code> fournie.`,
+            `Ignore les coordonnées hors-grille et les doublons.`,
+            `Exemple : <code>constellation_mapper([(0,0),(1,1),(2,2)], 3)</code> → <code>["*..", ".*.", "..*"]</code>`,
+        ],
+        signature: `def constellation_mapper(stars: list[tuple[int, int]], size: int) -> list[str]:`,
+        solution: `def constellation_mapper(stars: list[tuple[int, int]], size: int) -> list[str]:
+        grid = [['.'] * size for _ in range(size)]
 
-    for row, col in stars:
-        if 0 <= row < size and 0 <= col < size:
-            grid[row][col] = '*'
+        for row, col in stars:
+            if 0 <= row < size and 0 <= col < size:
+                grid[row][col] = '*'
 
-    return [''.join(line) for line in grid]
+        return [''.join(line) for line in grid]
 
 
 print(constellation_mapper([(0, 0), (1, 1), (2, 2)], 3))
