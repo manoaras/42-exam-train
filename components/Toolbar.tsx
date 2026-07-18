@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import type { CloudUser, View } from "@/lib/types";
 
 interface Props {
@@ -13,7 +14,7 @@ export default function Toolbar({ view, onView, search, onSearch, successCount, 
   return (
     <div className="toolbar">
       <div className="toolbar-inner">
-        <div className="brand"><span className="glyph">◆</span><span className="long">Exams · 42</span></div>
+        <Link href="/" className="brand"><span className="glyph">◆</span><span className="long">Exams · 42</span></Link>
         <div className="seg" role="tablist" aria-label="Choix de la vue">
           <button type="button" role="tab" className={view === "official" ? "active" : ""} onClick={() => onView("official")}>Officiels</button>
           <button type="button" role="tab" className={view === "training" ? "active" : ""} onClick={() => onView("training")}>Entraînement</button>

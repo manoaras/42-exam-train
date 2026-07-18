@@ -285,3 +285,23 @@
   .modal-wide{max-width:860px}
   .q-actions.center{justify-content:center}
   .quiz-run .q-solution{margin-top:16px;border-top:1px solid var(--line);padding-top:8px}
+
+  /* ---------- accueil / learn ---------- */
+  .hero.center{text-align:center;max-width:720px;margin:0 auto;padding-top:64px}
+  .hero.center .sub{margin:0 auto}
+  .home-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));
+    gap:20px;max-width:980px;margin:44px auto 64px}
+  .home-cards.single{max-width:420px}
+  .home-card{display:flex;flex-direction:column;gap:8px;text-decoration:none;color:var(--ink);
+    background:linear-gradient(180deg,var(--panel),var(--bg) 260%);border:1px solid var(--line);
+    border-radius:var(--radius);padding:28px 26px;transition:border-color .2s,transform .15s}
+  a.home-card:hover{border-color:var(--accent);transform:translateY(-3px)}
+  .home-card.disabled{opacity:.55;cursor:default}
+  .home-icon{font-size:1.9rem}
+  .home-card h2{margin:0;font-size:1.2rem;letter-spacing:-.01em}
+  .home-card p{margin:0;color:var(--muted);font-size:.92rem}
+  .home-cta{margin-top:auto;padding-top:12px;font-family:"JetBrains Mono",monospace;
+    font-size:.78rem;color:var(--accent)}
+  .soon{font-family:"JetBrains Mono",monospace;font-size:.62rem;color:var(--gold);
+    border:1px solid rgba(240,192,74,.4);border-radius:20px;padding:2px 8px;
+    vertical-align:middle;margin-left:6px}

@@ -6,6 +6,7 @@ import type { Exercise, Status } from "@/lib/types";
 import { EXERCISES, exId } from "@/lib/exercises";
 import { highlight } from "@/lib/highlight";
 import { grade, type GradeResult } from "@/lib/grademe";
+import { GRADEME } from "@/lib/grademe-data";
 
 type QuizTab = 1 | 2 | 99;
 type Phase = "setup" | "run" | "results";
@@ -154,6 +155,7 @@ export default function QuizModal({ open, onClose, setStatus, initialTab, initia
   };
 
   const ex = queue[index];
+  const hasTests = ex ? Boolean(GRADEME[exId(ex)]) : false;
   const successCount = Object.values(results).filter((v) => v === "success").length;
   const toReview = queue.filter((e) => results[exId(e)] !== "success");
   const remaining = deadline !== null ? deadline - now : null;
@@ -239,9 +241,17 @@ export default function QuizModal({ open, onClose, setStatus, initialTab, initia
             </div>
           )}
           <div className="q-actions">
-            <button className="q-primary" type="button" onClick={runGrademe} disabled={grading}>
-              {grading ? "⏳ Correction…" : "⚡ Grademe"}
-            </button>
+            {hasTests ? (
+              <button className="q-primary" type="button" onClick={runGrademe} disabled={grading}>
+                {grading ? "⏳ Correction…" : "⚡ Grademe"}
+              </button>
+            ) : (
+              <>
+                {/* pas de tests automatisés (ex. sujets C) : auto-évaluation */}
+                <button className="q-primary" type="button" onClick={() => next("success")}>✓ Réussi</button>
+                <button className="ghost" type="button" onClick={() => next("review")}>✗ À revoir</button>
+              </>
+            )}
             <button className="ghost" type="button" onClick={reveal} disabled={revealed}>Révéler la solution</button>
             <button className="ghost" type="button" onClick={() => next("review")}>Passer (→ à revoir)</button>
             {attempts > 0 && <span className="q-attempts">tentative {attempts}</span>}

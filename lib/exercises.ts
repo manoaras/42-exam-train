@@ -9,8 +9,9 @@ export const RANK_TABS = [
 ];
 
 export const TAB_SUBS: Record<number, string> = {
+  0: `Les sujets officiels pour l'exam — <b>C - Programming Fundamentals</b>. 57 sujets répartis en <b>4 niveaux</b> de difficulté croissante : choisis un niveau, tente en conditions, puis compare avec la solution.`,
   1: `Les sujets officiels pour l'exam — <b>Basic Python Algorithms</b>. 14 sujets répartis en <b>6 niveaux</b> de difficulté croissante : choisis un niveau, tente en conditions, puis valide au <b>grademe</b>.`,
-  2: `Les sujets officiels pour l'exam — <b>Medium Python Algorithms</b>. Tirés des vrais attempts (rank 04) : tente-les en conditions, puis révèle la <b>solution la plus courte</b>.`,
+  2: `Les sujets officiels pour l'exam — <b>Medium Python Algorithms</b>. 6 sujets tirés des vrais attempts (rank 04) : tente-les en conditions, puis valide au <b>grademe</b>.`,
 };
 
 export const TRAINING_HERO = {
