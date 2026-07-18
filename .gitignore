@@ -1,12 +1,32 @@
-# Dépendances (le site charge Firebase via CDN — node_modules inutile)
+# === Dépendances ===
 node_modules/
 
-# Fichiers générés par la compilation TypeScript
-app.js
+# === Builds Next.js (générés — jamais versionnés) ===
+.next/
+out/
+build/
+*.tsbuildinfo
+next-env.d.ts
 
-# Système / éditeurs
+# === Environnement & secrets ===
+# (garde .env.example versionné si tu en crées un)
+.env
+.env*.local
+
+# === Logs & caches ===
+npm-debug.log*
+yarn-error.log*
+.eslintcache
+coverage/
+
+# === Système & éditeurs ===
 .DS_Store
 __MACOSX/
+Thumbs.db
 *.swp
 .vscode/
 .idea/
+
+# === Divers ===
+.vercel/
+"{app,components,lib}"/
