@@ -578,6 +578,7 @@ function loadProgress(): ProgressMap {
 }
 function saveProgress(): void {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(progress)); } catch { /* pas de persistance ici */ }
+  cloudSave();
 }
 let progress: ProgressMap = loadProgress();
 
@@ -624,6 +625,81 @@ function refreshStats(): void {
   statSuccess.textContent = String(s);
   statReview.textContent = String(r);
   barEl.style.width = (list.length ? (s / list.length) * 100 : 0) + "%";
+}
+
+/* ---- Connexion Google + sauvegarde cloud (Firebase, optionnel) --------- */
+
+interface CloudUser { uid: string; name: string; photo: string }
+let cloudUser: CloudUser | null = null;
+let fb: { auth: any; db: any; api: any; fs: any } | null = null;
+let cloudSaveTimer: number | null = null;
+
+const dynImport = (u: string): Promise<any> => (new Function("u", "return import(u)"))(u);
+
+async function initFirebase(): Promise<void> {
+  const cfg = (window as any).FIREBASE_CONFIG as Record<string, string> | null;
+  const btn = document.getElementById("auth-btn") as HTMLButtonElement;
+  if (!cfg) return; // pas configuré → mode 100 % local, bouton masqué
+  btn.hidden = false;
+  try {
+    const V = "10.12.2";
+    const app = await dynImport(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
+    const api = await dynImport(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`);
+    const fs  = await dynImport(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`);
+    const a = app.initializeApp(cfg);
+    fb = { auth: api.getAuth(a), db: fs.getFirestore(a), api, fs };
+    api.onAuthStateChanged(fb.auth, (u: any) => onAuthChange(u));
+    btn.addEventListener("click", async () => {
+      if (cloudUser) {
+        if (confirm("Se déconnecter ? (ta progression reste sauvegardée dans le cloud)")) fb!.api.signOut(fb!.auth);
+      } else {
+        try { await fb!.api.signInWithPopup(fb!.auth, new fb!.api.GoogleAuthProvider()); }
+        catch (e) { alert("Connexion impossible : " + (e as Error).message); }
+      }
+    });
+  } catch (e) {
+    console.warn("Firebase indisponible :", e);
+    btn.hidden = true;
+  }
+}
+
+function renderAuthBtn(): void {
+  const btn = document.getElementById("auth-btn") as HTMLButtonElement;
+  if (!btn || btn.hidden) return;
+  btn.innerHTML = cloudUser
+    ? `<img src="${cloudUser.photo}" alt="" referrerpolicy="no-referrer">${cloudUser.name}<span class="sync">☁ sync</span>`
+    : "Se connecter";
+}
+
+const RANKV: Record<Status, number> = { seen: 1, review: 2, success: 3 };
+
+async function onAuthChange(u: any): Promise<void> {
+  if (!fb) return;
+  if (!u) { cloudUser = null; renderAuthBtn(); return; }
+  cloudUser = { uid: u.uid, name: (u.displayName || "").split(" ")[0] || "Connecté", photo: u.photoURL || "" };
+  renderAuthBtn();
+  try {
+    const ref = fb.fs.doc(fb.db, "users", u.uid);
+    const snap = await fb.fs.getDoc(ref);
+    const remote: ProgressMap = snap.exists() ? (snap.data().progress || {}) : {};
+    // fusion : on garde le meilleur statut connu de chaque côté
+    for (const [k, v] of Object.entries(remote)) {
+      const local = progress[k];
+      if (!local || RANKV[v as Status] > RANKV[local]) progress[k] = v as Status;
+    }
+    saveProgress(); // écrit local + cloud (état fusionné)
+    render();
+  } catch (e) { console.warn("Lecture cloud impossible :", e); }
+}
+
+function cloudSave(): void {
+  if (!fb || !cloudUser) return;
+  if (cloudSaveTimer) clearTimeout(cloudSaveTimer);
+  cloudSaveTimer = window.setTimeout(() => {
+    fb!.fs.setDoc(fb!.fs.doc(fb!.db, "users", cloudUser!.uid), {
+      progress, updatedAt: Date.now(),   // données minimales : uid (clé), progression, horodatage
+    }).catch((e: Error) => console.warn("Sauvegarde cloud impossible :", e));
+  }, 800); // debounce : regroupe les écritures rapprochées
 }
 
 /* ---- Références DOM ---------------------------------------------------- */
@@ -797,6 +873,10 @@ resetBtn.addEventListener("click", () => {
   if (!confirm("Réinitialiser toute ta progression (réussis, à revoir, vus) et les essais en cours ?")) return;
   progress = {};
   try { localStorage.removeItem(STORE_KEY); localStorage.setItem(STORE_KEY, "{}"); localStorage.removeItem(STORE_KEY); } catch { /* rien */ }
+  if (fb && cloudUser) {
+    fb.fs.setDoc(fb.fs.doc(fb.db, "users", cloudUser.uid), { progress: {}, updatedAt: Date.now() })
+      .catch((e: Error) => console.warn("Reset cloud impossible :", e));
+  }
   closeModal();
   if (document.body.classList.contains("mode-quiz")) exitQuiz(); // stoppe aussi un quiz en cours
   render(); // reconstruit les cartes sans badge
@@ -1252,3 +1332,4 @@ quizToggle.addEventListener("click", () => {
 /* ---- Démarrage --------------------------------------------------------- */
 document.body.classList.add("view-official");
 render();
+initFirebase();

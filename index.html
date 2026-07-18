@@ -48,6 +48,11 @@
     font-family:"JetBrains Mono",monospace;font-size:.74rem;padding:8px 12px;cursor:pointer;
     white-space:nowrap;transition:all .15s}
   .tbtn:hover{color:var(--ink);border-color:var(--indigo)}
+
+  .auth-btn{border-color:rgba(102,214,154,.45);color:var(--ok);display:inline-flex;align-items:center;gap:7px}
+  .auth-btn:hover{background:rgba(102,214,154,.1);color:var(--ink)}
+  .auth-btn img{width:18px;height:18px;border-radius:50%}
+  .auth-btn .sync{font-size:.62rem;color:var(--muted)}
   .quiz-toggle{border-color:rgba(138,130,255,.5);color:var(--indigo)}
   .quiz-toggle:hover{background:rgba(138,130,255,.12);color:var(--ink)}
 
@@ -266,6 +271,7 @@
       <button type="button" data-view="training" role="tab">Entraînement</button>
     </div>
     <input id="search" class="search" type="search" placeholder="Filtrer…" aria-label="Filtrer les exercices">
+    <button type="button" class="tbtn auth-btn" id="auth-btn" hidden>Se connecter</button>
     <button type="button" class="tbtn quiz-toggle" id="quiz-toggle">▶ Mode quiz</button>
     <div class="progress" id="progress" title="Maîtrise : réussis / à revoir">
       <span class="stat ok">✓<b id="stat-success">0</b></span>
@@ -301,6 +307,14 @@
 <div hidden>
 </div>
 
+<script>
+/* ================== CONNEXION (optionnelle) ==================
+   Pour activer la connexion Google + sauvegarde cloud :
+   colle ici l'objet de config de ton projet Firebase, ex. :
+   window.FIREBASE_CONFIG = { apiKey:"...", authDomain:"...", projectId:"..." };
+   Laisse à null pour un fonctionnement 100 % local. */
+window.FIREBASE_CONFIG = null;
+</script>
 <script>
 "use strict";
 /* =========================================================================
@@ -862,6 +876,7 @@ function saveProgress() {
         localStorage.setItem(STORE_KEY, JSON.stringify(progress));
     }
     catch { /* pas de persistance ici */ }
+    cloudSave();
 }
 let progress = loadProgress();
 function statusMeta(st) {
@@ -918,6 +933,91 @@ function refreshStats() {
     statSuccess.textContent = String(s);
     statReview.textContent = String(r);
     barEl.style.width = (list.length ? (s / list.length) * 100 : 0) + "%";
+}
+let cloudUser = null;
+let fb = null;
+let cloudSaveTimer = null;
+const dynImport = (u) => (new Function("u", "return import(u)"))(u);
+async function initFirebase() {
+    const cfg = window.FIREBASE_CONFIG;
+    const btn = document.getElementById("auth-btn");
+    if (!cfg)
+        return; // pas configuré → mode 100 % local, bouton masqué
+    btn.hidden = false;
+    try {
+        const V = "10.12.2";
+        const app = await dynImport(`https://www.gstatic.com/firebasejs/${V}/firebase-app.js`);
+        const api = await dynImport(`https://www.gstatic.com/firebasejs/${V}/firebase-auth.js`);
+        const fs = await dynImport(`https://www.gstatic.com/firebasejs/${V}/firebase-firestore.js`);
+        const a = app.initializeApp(cfg);
+        fb = { auth: api.getAuth(a), db: fs.getFirestore(a), api, fs };
+        api.onAuthStateChanged(fb.auth, (u) => onAuthChange(u));
+        btn.addEventListener("click", async () => {
+            if (cloudUser) {
+                if (confirm("Se déconnecter ? (ta progression reste sauvegardée dans le cloud)"))
+                    fb.api.signOut(fb.auth);
+            }
+            else {
+                try {
+                    await fb.api.signInWithPopup(fb.auth, new fb.api.GoogleAuthProvider());
+                }
+                catch (e) {
+                    alert("Connexion impossible : " + e.message);
+                }
+            }
+        });
+    }
+    catch (e) {
+        console.warn("Firebase indisponible :", e);
+        btn.hidden = true;
+    }
+}
+function renderAuthBtn() {
+    const btn = document.getElementById("auth-btn");
+    if (!btn || btn.hidden)
+        return;
+    btn.innerHTML = cloudUser
+        ? `<img src="${cloudUser.photo}" alt="" referrerpolicy="no-referrer">${cloudUser.name}<span class="sync">☁ sync</span>`
+        : "Se connecter";
+}
+const RANKV = { seen: 1, review: 2, success: 3 };
+async function onAuthChange(u) {
+    if (!fb)
+        return;
+    if (!u) {
+        cloudUser = null;
+        renderAuthBtn();
+        return;
+    }
+    cloudUser = { uid: u.uid, name: (u.displayName || "").split(" ")[0] || "Connecté", photo: u.photoURL || "" };
+    renderAuthBtn();
+    try {
+        const ref = fb.fs.doc(fb.db, "users", u.uid);
+        const snap = await fb.fs.getDoc(ref);
+        const remote = snap.exists() ? (snap.data().progress || {}) : {};
+        // fusion : on garde le meilleur statut connu de chaque côté
+        for (const [k, v] of Object.entries(remote)) {
+            const local = progress[k];
+            if (!local || RANKV[v] > RANKV[local])
+                progress[k] = v;
+        }
+        saveProgress(); // écrit local + cloud (état fusionné)
+        render();
+    }
+    catch (e) {
+        console.warn("Lecture cloud impossible :", e);
+    }
+}
+function cloudSave() {
+    if (!fb || !cloudUser)
+        return;
+    if (cloudSaveTimer)
+        clearTimeout(cloudSaveTimer);
+    cloudSaveTimer = window.setTimeout(() => {
+        fb.fs.setDoc(fb.fs.doc(fb.db, "users", cloudUser.uid), {
+            progress, updatedAt: Date.now(), // données minimales : uid (clé), progression, horodatage
+        }).catch((e) => console.warn("Sauvegarde cloud impossible :", e));
+    }, 800); // debounce : regroupe les écritures rapprochées
 }
 /* ---- Références DOM ---------------------------------------------------- */
 const grid = document.getElementById("grid");
@@ -1101,6 +1201,10 @@ resetBtn.addEventListener("click", () => {
         localStorage.removeItem(STORE_KEY);
     }
     catch { /* rien */ }
+    if (fb && cloudUser) {
+        fb.fs.setDoc(fb.fs.doc(fb.db, "users", cloudUser.uid), { progress: {}, updatedAt: Date.now() })
+            .catch((e) => console.warn("Reset cloud impossible :", e));
+    }
     closeModal();
     if (document.body.classList.contains("mode-quiz"))
         exitQuiz(); // stoppe aussi un quiz en cours
@@ -1573,6 +1677,7 @@ quizToggle.addEventListener("click", () => {
 /* ---- Démarrage --------------------------------------------------------- */
 document.body.classList.add("view-official");
 render();
+initFirebase();
 
 </script>
 </body>
