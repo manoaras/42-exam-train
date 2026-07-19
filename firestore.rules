@@ -1,0 +1,13 @@
+rules_version = '2';
+// Règles Firestore — à publier dans la console Firebase (Firestore → Règles).
+// La whitelist DOIT rester synchronisée avec lib/access.ts : c'est ici que se
+// joue la vraie sécurité (le code client d'un site statique est contournable).
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid} {
+      allow read, write: if request.auth != null
+        && request.auth.uid == uid
+        && request.auth.token.email in ['manoatony.pro@gmail.com', 'manoatony@gmail.com'];
+    }
+  }
+}

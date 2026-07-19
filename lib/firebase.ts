@@ -1,7 +1,7 @@
 /* Firebase (clés publiques par conception — la sécurité vient des règles Firestore) */
 import { initializeApp, getApps } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, type User } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, deleteUser, type User } from "firebase/auth";
+import { getFirestore, doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
 import type { ProgressMap } from "./types";
 
 const config = {
@@ -26,4 +26,18 @@ export async function fetchCloudProgress(uid: string): Promise<ProgressMap> {
 export async function saveCloudProgress(uid: string, progress: ProgressMap): Promise<void> {
   // données minimales : progression + horodatage, rien de sensible
   await setDoc(doc(getFirestore(app()), "users", uid), { progress, updatedAt: Date.now() });
+}
+
+/* Efface toutes les données cloud de l'utilisateur (document Firestore) */
+export async function deleteCloudData(uid: string): Promise<void> {
+  await deleteDoc(doc(getFirestore(app()), "users", uid));
+}
+
+/* Supprime le compte Firebase (données cloud incluses).
+ * Peut lever `auth/requires-recent-login` : l'appelant doit gérer ce cas. */
+export async function deleteAccount(): Promise<void> {
+  const u = getAuth(app()).currentUser;
+  if (!u) return;
+  await deleteDoc(doc(getFirestore(app()), "users", u.uid)).catch(() => undefined);
+  await deleteUser(u);
 }

@@ -20,4 +20,14 @@ export interface Exercise {
   lang?: "c";   // coloration : Python par défaut
 }
 
-export interface CloudUser { uid: string; name: string; photo: string }
+export interface CloudUser {
+  uid: string;
+  email: string;
+  photo: string;
+  firstName: string;
+  lastName: string;
+  bio: string;
+}
+
+/* Overrides locaux du profil (prénom / nom / description) */
+export interface ProfilePatch { firstName?: string; lastName?: string; bio?: string }

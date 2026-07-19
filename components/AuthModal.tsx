@@ -33,7 +33,7 @@ export default function AuthModal({ open, onClose, user, signIn, signOut, reason
                 <img src={user.photo} alt="" referrerPolicy="no-referrer" />
               )}
             <div>
-              <b>{user.name}</b>
+              <b>{user.firstName} {user.lastName}</b>
               <span className="dialog-sub">Progression synchronisée ☁</span>
             </div>
           </div>

@@ -2,6 +2,7 @@
 /* Mode quiz en modal : setup → run (éditeur + grademe) → résultats. Chrono 3 h optionnel. */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Modal from "./Modal";
+import CopyButton from "./CopyButton";
 import type { Exercise, Status } from "@/lib/types";
 import { EXERCISES, exId } from "@/lib/exercises";
 import { highlight } from "@/lib/highlight";
@@ -72,7 +73,6 @@ export default function QuizModal({ open, onClose, setStatus, initialTab, initia
   const [code, setCode] = useState("");
   const [attempts, setAttempts] = useState(0);
   const [revealed, setRevealed] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [feedback, setFeedback] = useState<{ kind: "info" | "ok" | "ko"; html: string } | null>(null);
   const [grading, setGrading] = useState(false);
   const advancing = useRef(false);
@@ -106,7 +106,7 @@ export default function QuizModal({ open, onClose, setStatus, initialTab, initia
     setPhase("run");
   };
   const resetQuestion = () => {
-    setCode(""); setAttempts(0); setRevealed(false); setFeedback(null); setCopied(false);
+    setCode(""); setAttempts(0); setRevealed(false); setFeedback(null);
     advancing.current = false;
   };
   const finish = () => { setElapsed(Date.now() - startedAt); setPhase("results"); };
@@ -232,10 +232,7 @@ export default function QuizModal({ open, onClose, setStatus, initialTab, initia
           {revealed && (
             <div className="q-solution">
               <div className="code-wrap">
-                <button className={`copy-btn${copied ? " done" : ""}`} type="button"
-                  onClick={() => navigator.clipboard.writeText(ex.solution).then(() => { setCopied(true); setTimeout(() => setCopied(false), 1500); })}>
-                  {copied ? "✓ Copié" : "Copier"}
-                </button>
+                <CopyButton text={ex.solution} ariaLabel="Copier la solution" />
                 <pre dangerouslySetInnerHTML={{ __html: highlight(ex.solution, ex.lang) }} />
               </div>
               <p className="sol-note" dangerouslySetInnerHTML={{ __html: ex.note }} />
