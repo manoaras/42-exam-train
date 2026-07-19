@@ -11,7 +11,7 @@ export const RANK_TABS = [
 export const TAB_SUBS: Record<number, string> = {
   0: `Les sujets officiels pour l'exam — <b>C - Programming Fundamentals</b>. 57 sujets répartis en <b>4 niveaux</b> de difficulté croissante : choisis un niveau, tente en conditions, puis compare avec la solution.`,
   1: `Les sujets officiels pour l'exam — <b>Basic Python Algorithms</b>. 14 sujets répartis en <b>6 niveaux</b> de difficulté croissante : choisis un niveau, tente en conditions, puis valide au <b>grademe</b>.`,
-  2: `Les sujets officiels pour l'exam — <b>Medium Python Algorithms</b>. 6 sujets tirés des vrais attempts (rank 04) : tente-les en conditions, puis valide au <b>grademe</b>.`,
+  2: `Les sujets officiels pour l'exam — <b>Medium Python Algorithms</b>. 7 sujets tirés des vrais attempts (rank 04) : tente-les en conditions, puis valide au <b>grademe</b>.`,
 };
 
 export const TRAINING_HERO = {
@@ -3374,6 +3374,55 @@ print(sliding_window_maximum([1, 3, -1, -3, 5, 3, 6, 7], 3))
 # output: [3, 3, 5, 5, 6, 7]`,
     note: `<b>Le compteur clé :</b> <code>len(nums) - k + 1</code> = le nombre de fenêtres. Avec 8 cases et <code>k=3</code>, la fenêtre démarre en 0…5 → <code>8-3+1=6</code>. <b>La compréhension</b> remplace la boucle <code>for</code> + <code>append</code> en une ligne.`,
     search: "sliding_window_maximum window fenetre max comprehension attempt 2",
+  },
+  {
+    view: "official", tab: 2, section: "Sujets tombés à l'exam", num: "07",
+    heading: `<span class="file">package_dependency_resolver.py</span>`,
+    tag: "tri topologique",
+    analogy: `📦 Monter un meuble : impossible de visser l'étagère avant les pieds. On installe d'abord ce qui ne dépend de rien, puis on remonte la chaîne — et si deux pièces s'attendent mutuellement, le montage est impossible.`,
+    brief: [
+      `Détermine un <b>ordre d'installation valide</b> des paquets : chaque dépendance doit être installée <b>avant</b> les paquets qui la requièrent (tri topologique, algo de Kahn).`,
+      `À égalité (plusieurs paquets prêts en même temps), traite-les par <b>ordre alphabétique</b> — sortie déterministe.`,
+      `Cycle, auto-dépendance ou dict vide → <code>[]</code> ; les dépendances <b>absentes des clés</b> sont ignorées.`,
+      `Exemple : <code>package_dependency_resolver({"app": ["database"], "database": ["driver"], "driver": []})</code> → <code>["driver", "database", "app"]</code>`,
+      `Exemple : <code>package_dependency_resolver({"X": ["Y"], "Y": ["X"]})</code> → <code>[]</code>`,
+    ],
+    signature: `def package_dependency_resolver(packages: dict[str, list[str]]) -> list[str]:`,
+    solution: `def package_dependency_resolver(packages: dict[str, list[str]]) -> list[str]:
+    # dépendances restantes par paquet (on ignore celles absentes des clés)
+    deps = {pkg: {d for d in reqs if d in packages} for pkg, reqs in packages.items()}
+
+    order = []
+    while deps:
+        # paquets prêts = plus aucune dépendance restante, traités par ordre alphabétique
+        ready = sorted(pkg for pkg, reqs in deps.items() if not reqs)
+        if not ready:
+            return []          # personne n'est prêt → cycle (ou auto-dépendance)
+        for pkg in ready:
+            order.append(pkg)
+            del deps[pkg]
+        for reqs in deps.values():
+            reqs -= set(ready)   # ces paquets sont installés : on les raye partout
+
+    return order
+
+
+print(package_dependency_resolver({"app": ["database"], "database": ["driver"], "driver": []}))
+# output: ['driver', 'database', 'app']
+
+print(package_dependency_resolver({"A": [], "B": ["A"], "C": ["A", "B"]}))
+# output: ['A', 'B', 'C']
+
+print(package_dependency_resolver({}))
+# output: []
+
+print(package_dependency_resolver({"X": ["Y"], "Y": ["X"]}))
+# output: []
+
+print(package_dependency_resolver({"web": [], "api": [], "frontend": ["web"], "backend": ["api"]}))
+# output: ['api', 'web', 'backend', 'frontend']`,
+    note: `<b>Kahn par vagues :</b> à chaque tour, on collecte les paquets <b>sans dépendance restante</b> (triés alphabétiquement), on les installe, puis on les raye des autres. Si un tour ne libère personne alors qu'il reste des paquets → <b>cycle</b>, donc <code>[]</code>. Le filtre <code>d in packages</code> ignore les dépendances fantômes dès le départ.`,
+    search: "package_dependency_resolver dependances tri topologique kahn graphe paquets",
   },
 
   /* ============ BASIC (tab 1) ============ */

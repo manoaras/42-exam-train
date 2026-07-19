@@ -20,12 +20,12 @@ export default function Home() {
             <p>Sujets officiels (C, Basic, Medium…), exercices par concept et mode quiz avec grademe.</p>
             <span className="home-cta">Commencer →</span>
           </Link>
-          <div className="home-card disabled" aria-disabled="true">
+          <Link href="/learn" className="home-card">
             <span className="home-icon">📚</span>
-            <h2>Cours <span className="soon">bientôt</span></h2>
-            <p>Fiches de cours, mémos par concept et ressources pour réviser entre deux sessions.</p>
-            <span className="home-cta">En préparation…</span>
-          </div>
+            <h2>Cours</h2>
+            <p>Guides complets C et Python par chapitres : analogies, pièges, code copiable et mémos 42.</p>
+            <span className="home-cta">Apprendre →</span>
+          </Link>
           <div className="home-card disabled" aria-disabled="true">
             <span className="home-icon">📈</span>
             <h2>Suivi <span className="soon">bientôt</span></h2>
